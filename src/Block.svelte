@@ -68,6 +68,13 @@
         }
         pageStore.updatePage()
         break;
+      case 'Tab':
+        if (path[path.length - 1] !== 0) {
+          e.preventDefault()
+          pageStore.getPageEngine().forward(path)
+          pageStore.updatePage()
+        }
+        break
     }
   }
 
