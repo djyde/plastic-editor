@@ -2,6 +2,7 @@
   import { editingBlockId, anchorOffset } from './store'
   import { getContext, tick } from "svelte";
   import { clickOutside, autoResize } from "./actions";
+  import { isInBracket } from './utils'
   import type {
     ShallowBlock,
     Block,
@@ -9,8 +10,11 @@
   import type { PageEngine } from "@plastic-editor/protocol";
   import type { Adapter } from "./adapters";
 import RichText from './RichText.svelte';
+	import getCaretCoordinates from 'textarea-caret'
 
-  const { adapter, pageStore } = getContext("plastic") as {
+
+  const { adapter, pageStore, onKeyDown } = getContext("plastic") as {
+    onKeyDown?: () => void
     adapter: Adapter;
     pageStore: {
       subscribe: any;
@@ -69,7 +73,29 @@ import RichText from './RichText.svelte';
     fullBlock.content = content
   }
 
-  async function onKeyDown(e) {
+  async function onKeyDownListener(e) {
+
+    setTimeout(() => {
+			if (editor) {
+				const { selectionStart, selectionEnd } = editor
+				const ranges = isInBracket(editor.value, selectionStart)
+				if (ranges) {
+					// search page
+					const [ start, end ] = ranges
+					// currentEditingLinkRange = ranges
+					const keyword = editor.value.slice(start, end)
+					// const results = DB.get().searchPageByKeyword(keyword)
+					const caret = getCaretCoordinates(editor, start)
+					if (!textareaCaret) {
+						textareaCaret = caret
+					}
+					// searchResults = results
+				} else {
+					textareaCaret = null
+				}
+			}
+		})
+
     switch (e.key) {
       case "Enter":
         if (!e.shiftKey) {
@@ -124,6 +150,24 @@ import RichText from './RichText.svelte';
 					}
 				}
 				break
+      case '[':
+				{
+					const [ start, end ] = [editor.selectionStart, editor.selectionEnd]
+					if (start === end) {
+						editor.setRangeText(']', start, end)
+					} else {
+						editor.setSelectionRange(start, start)
+						// editor.setRangeText('[', start, start)
+						editor.setRangeText(']', end, end)
+
+						setTimeout(() => {
+							editor.setSelectionRange(start + 1, end + 1)
+						})
+					}
+				}
+				break
+      default:
+        break
     }
   }
 
@@ -151,14 +195,21 @@ import RichText from './RichText.svelte';
   <div class="flex-1">
     {#if fullBlock}
       {#if focused}
+				<div class="relative">
+        {#if textareaCaret}
+        <div class="z-10 bg-white absolute w-64 border border-gray-100 overflow-scroll" style={`height: 200px; top: ${textareaCaret.top + 24}px; left: ${textareaCaret.left}px;`}>
+
+        </div>
+        {/if}
         <textarea
         use:clickOutside={onClickOutside}
-        on:keydown={onKeyDown}
+        on:keydown={onKeyDownListener}
         spellcheck={false}
         bind:this={editor}
         class="editor"
         use:autoResize
         on:change={onChangeContent}>{fullBlock.content}</textarea>
+        </div>
       {:else}
         <div bind:this={previewWrapper} class="preview"  on:click|stopPropagation={onClickPreview}>
           <RichText updateContent={updateContent} content={fullBlock.content} />
