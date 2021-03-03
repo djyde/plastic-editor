@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { getContext } from "svelte";
-  import type { Writable } from "svelte/store";
-
+  import { editingBlockId } from './store'
+  import { getContext, tick } from "svelte";
   import { clickOutside, autoResize } from "./actions";
   import type {
     ShallowBlock,
@@ -42,31 +41,45 @@
     .catch((e) => {
     });
 
-  function onKeyDown(e) {
+  $: {
+    if ($editingBlockId === block.id && editor)  {
+      editor.focus()
+    }
+  }
+
+  async function onKeyDown(e) {
     switch (e.key) {
       case "Enter":
         if (!e.shiftKey) {
           e.preventDefault();
+          let newBlockId
           if (!editor.value) {
             // backward
             if (path.length > 1) {
               pageStore.getPageEngine().backward(path)
             } else {
-              pageStore.getPageEngine().apendBlockAt(path, adapter.writer.createNewBlock($pageStore.id).shallow)
+              const newBlock = pageStore.getPageEngine().apendBlockAt(path, adapter.writer.createNewBlock($pageStore.id).shallow)
+              newBlockId = newBlock.block.id
             }
           } else {
             if (editor.selectionStart === 0) {
-              pageStore.getPageEngine().prependBlockAt(path, adapter.writer.createNewBlock($pageStore.id).shallow);
+              const newBlock = pageStore.getPageEngine().prependBlockAt(path, adapter.writer.createNewBlock($pageStore.id).shallow);
+              newBlockId = newBlock.block.id
             } else {
               if (block.children.length) {
-                pageStore.getPageEngine().prependChild(path, adapter.writer.createNewBlock($pageStore.id).shallow)
+                const newBlock = pageStore.getPageEngine().prependChild(path, adapter.writer.createNewBlock($pageStore.id).shallow);
+                newBlockId = newBlock.id
               } else {
-                pageStore.getPageEngine().apendBlockAt(path, adapter.writer.createNewBlock($pageStore.id).shallow);
+                const newBlock = pageStore.getPageEngine().apendBlockAt(path, adapter.writer.createNewBlock($pageStore.id).shallow)
+                newBlockId = newBlock.block.id
               }
             }
           }
+          pageStore.updatePage()
+          if (newBlockId) {
+            $editingBlockId = newBlockId
+          }
         }
-        pageStore.updatePage()
         break;
       case 'Tab':
         if (path[path.length - 1] !== 0) {

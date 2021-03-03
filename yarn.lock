@@ -9,10 +9,10 @@
   dependencies:
     purgecss "^3.1.3"
 
-"@plastic-editor/protocol@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@plastic-editor/protocol/-/protocol-0.0.4.tgz#e5ba69546093c9020da7151a804e8f1c5c8217c8"
-  integrity sha512-oGa2iRsPyE6v1cGM9h5xxNmB7ldz74TlIw2kdEq01y4esD4b8lTwaQSlj/7rr1PtyCXyzNu9VQ9gNoERoszWAg==
+"@plastic-editor/protocol@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@plastic-editor/protocol/-/protocol-0.0.5.tgz#74194877be8141b9e381ef1ab685582c7cd6b7df"
+  integrity sha512-uObKt7w2HWa4wlYT4aa6QIPGlZ6Fyr2CCTdoyDxehdDV4uzASUOmolexqob3rFwmhLi9lamDWQOO2i6C0L1kAg==
   dependencies:
     lodash.clonedeep "^4.5.0"
     nanoid "^3.1.20"
