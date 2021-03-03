@@ -41,13 +41,13 @@ const blocks = {
   },
   block2: {
     id: "block2",
-    content: "block2",
+    content: "block2 **bold**",
     references: [],
     pageId: "page",
   },
   block3: {
     id: "block3",
-    content: "block3",
+    content: "block3 `code block`",
     references: [],
     pageId: "page",
   },

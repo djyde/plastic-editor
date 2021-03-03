@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { editingBlockId } from './store'
+  import { editingBlockId, anchorOffset } from './store'
   import { getContext, tick } from "svelte";
   import { clickOutside, autoResize } from "./actions";
   import type {
@@ -8,6 +8,7 @@
   } from "@plastic-editor/protocol/lib/protocol";
   import type { PageEngine } from "@plastic-editor/protocol";
   import type { Adapter } from "./adapters";
+import RichText from './RichText.svelte';
 
   const { adapter, pageStore } = getContext("plastic") as {
     adapter: Adapter;
@@ -22,12 +23,15 @@
   export let debugMode = false;
   export let path: number[] = [];
   export let block: ShallowBlock;
+  export let editable = true
+	let textareaCaret: null | { top: number, height: number, left: number } = null 
 
   let editor: HTMLTextAreaElement | null = null;
+  let previewWrapper: HTMLDivElement | null = null
+
+  let focused = false
 
   let fullBlock: Block;
-
-  $: isTop = path.length === 1;
 
   $: adapter.reader
     .getBlockById(block.id)
@@ -42,9 +46,27 @@
     });
 
   $: {
-    if ($editingBlockId === block.id && editor)  {
+    if ($editingBlockId === block.id)  {
+      focused = true
+      tick().then(() => {
+        if ($anchorOffset !== null) {
+          editor.selectionEnd = $anchorOffset
+        }
+      })
+    } else {
+      focused = false
+    }
+  }
+
+  $: {
+    if (focused && editor) {
       editor.focus()
     }
+  }
+
+  function updateContent(content: string) {
+    // TODO: adapter update block
+    fullBlock.content = content
   }
 
   async function onKeyDown(e) {
@@ -97,9 +119,21 @@
     }
   }
 
-  function onClickOutside() {}
+  function onClickPreview() {
+    if (editable) {
+			$editingBlockId = block.id
+		}
+  }
 
-  function onChangeContent() {}
+  function onClickOutside() {
+    $editingBlockId = null
+    $anchorOffset = null
+		textareaCaret = null
+  }
+
+  function onChangeContent(e) {
+    updateContent(e.target.value)
+  }
 </script>
 
 <div class="main flex mb-2">
@@ -108,14 +142,20 @@
   </div>
   <div class="flex-1">
     {#if fullBlock}
-    <textarea
-      use:clickOutside={onClickOutside}
-      on:keydown={onKeyDown}
-      spellcheck={false}
-      bind:this={editor}
-      class="editor"
-      use:autoResize
-      on:change={onChangeContent}>{fullBlock.content}</textarea>
+      {#if focused}
+        <textarea
+        use:clickOutside={onClickOutside}
+        on:keydown={onKeyDown}
+        spellcheck={false}
+        bind:this={editor}
+        class="editor"
+        use:autoResize
+        on:change={onChangeContent}>{fullBlock.content}</textarea>
+      {:else}
+        <div bind:this={previewWrapper} class="preview"  on:click|stopPropagation={onClickPreview}>
+          <RichText updateContent={updateContent} content={fullBlock.content} />
+        </div>
+      {/if}
     {/if}
   </div>
 </div>
