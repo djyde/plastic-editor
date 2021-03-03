@@ -75,6 +75,12 @@
           pageStore.updatePage()
         }
         break
+      case 'Backspace':
+        if (!editor.value && !(block.children.length > 0)) {
+          pageStore.getPageEngine().remove(path)
+          pageStore.updatePage()
+        }
+        break
     }
   }
 
