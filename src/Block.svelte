@@ -116,6 +116,14 @@ import RichText from './RichText.svelte';
           pageStore.updatePage()
         }
         break
+      case '{':
+				{
+					const [ start, end ] = [editor.selectionStart, editor.selectionEnd]
+					if (start === end) {
+						editor.setRangeText('}', start, end)
+					}
+				}
+				break
     }
   }
 

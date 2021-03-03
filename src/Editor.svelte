@@ -6,9 +6,11 @@
   import { PageEngine } from '@plastic-editor/protocol'
   import type { Page } from '@plastic-editor/protocol/lib/protocol'
   import type { Adapter } from './adapters';
+import type { Rule } from './parser';
 
   export let adapter: Adapter
   export let pageId: string
+  export let rules: Rule[] = []
 
   function createPageStore(){
     let { subscribe, set } = writable<null | Page>(null)
@@ -40,7 +42,8 @@
 
   setContext('plastic', {
     adapter,
-    pageStore
+    pageStore,
+    rules
   })
 
   $: adapter.reader.getPageById(pageId).then(p => {

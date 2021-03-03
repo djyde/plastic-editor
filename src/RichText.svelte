@@ -2,12 +2,16 @@
   import { anchorOffset } from './store'
   import { tokenizer } from "./parser";
   import type { Rule, Token } from './parser'
+import { getContext } from 'svelte';
 
   export let updateContent
-  export let rules: Rule[] = []
   export let content = ""
 
   let toMatch = `${content}`;
+
+  const { rules } = getContext('plastic') as {
+    rules: Rule[]
+  }
 
   const tokens = tokenizer(toMatch, rules);
 
