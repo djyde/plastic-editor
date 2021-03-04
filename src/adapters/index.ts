@@ -9,6 +9,9 @@ export interface Writer {
     block: Block;
     shallow: ShallowBlock
   };
+
+  updateBlock(blockId: string, body): void
+  updatePage(pageId: string, page: Page)
 }
 
 export interface Reader {

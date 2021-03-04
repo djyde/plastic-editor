@@ -30,6 +30,7 @@ import type { Rule } from './parser';
       updatePage() {
         // TODO: update to db
         set(pageEngine.page)
+        adapter.writer.updatePage(pageEngine.page.id, pageEngine.page)
         pageEngine = pageEngine.renew()
       },
       getPageEngine() {

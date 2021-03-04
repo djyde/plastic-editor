@@ -116,6 +116,7 @@
   function updateContent(content: string) {
     // TODO: adapter update block
     fullBlock.content = content;
+    adapter.writer.updateBlock(fullBlock.id, fullBlock)
   }
 
   async function onKeyDownListener(e) {
@@ -300,7 +301,6 @@
           <textarea
             use:clickOutside={onClickOutside}
             on:keydown={onKeyDownListener}
-            spellcheck={false}
             bind:this={editor}
             class="editor"
             use:autoResize

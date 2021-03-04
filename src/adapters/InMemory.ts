@@ -37,6 +37,27 @@ export class InMemoryAdapter implements Adapter {
           children: []
         }
       }
+    },
+
+    updateBlock: (blockId: string, block: Block) => {
+      this.blocks[blockId] = {
+        ...this.blocks[blockId],
+        ...block
+      }
+    },
+    
+    updatePage: (pageId: string, page: Page) => {
+      const pageIndex = this.pages.findIndex(_ => _.id === pageId)
+      if (pageIndex !== -1) {
+        this.pages[pageIndex] = page
+      }
     }
+  }
+
+  stringify() {
+    return JSON.stringify({
+      pages: this.pages,
+      blocks: this.blocks
+    }, null, 2)
   }
 }
