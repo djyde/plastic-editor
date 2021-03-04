@@ -11,6 +11,7 @@ export interface Writer {
 }
 
 export interface Reader {
+  searchPageByKeyword(keyword: string): Promise<Page[]>
   getPageById(pageId: string): Promise<Page>
   getBlockById(blockId: string): Promise<Block>
 }

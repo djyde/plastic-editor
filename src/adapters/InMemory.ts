@@ -8,6 +8,9 @@ export class InMemoryAdapter implements Adapter {
   }
 
   reader = {
+    searchPageByKeyword: async (keyword: string) => {
+      return this.pages.filter(_ => _.title.match(new RegExp(`${keyword}`)))
+    },
     getBlockById: async (blockId: string) => {
       return this.blocks[blockId];
     },

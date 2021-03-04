@@ -1,25 +1,25 @@
 <script lang="ts">
-  import { editingBlockId, anchorOffset } from './store'
+  import { editingBlockId, anchorOffset } from "./store";
   import { getContext, tick } from "svelte";
   import { clickOutside, autoResize } from "./actions";
-  import { isInBracket } from './utils'
+  import { isInBracket } from "./utils";
   import type {
     ShallowBlock,
     Block,
+    Page,
   } from "@plastic-editor/protocol/lib/protocol";
   import type { PageEngine } from "@plastic-editor/protocol";
   import type { Adapter } from "./adapters";
-import RichText from './RichText.svelte';
-	import getCaretCoordinates from 'textarea-caret'
-
+  import RichText from "./RichText.svelte";
+  import getCaretCoordinates from "textarea-caret";
 
   const { adapter, pageStore, onKeyDown } = getContext("plastic") as {
-    onKeyDown?: () => void
+    onKeyDown?: () => void;
     adapter: Adapter;
     pageStore: {
       subscribe: any;
       updatePageId: (pageId: string) => Promise<void>;
-      updatePage(): void
+      updatePage(): void;
       getPageEngine(): PageEngine;
     };
   };
@@ -27,13 +27,20 @@ import RichText from './RichText.svelte';
   export let debugMode = false;
   export let path: number[] = [];
   export let block: ShallowBlock;
-  export let editable = true
-	let textareaCaret: null | { top: number, height: number, left: number } = null 
+  export let editable = true;
+  let searchResults: Page[] = [];
+  let textareaCaret: null | {
+    top: number;
+    height: number;
+    left: number;
+  } = null;
 
   let editor: HTMLTextAreaElement | null = null;
-  let previewWrapper: HTMLDivElement | null = null
+  let previewWrapper: HTMLDivElement | null = null;
 
-  let focused = false
+	let currentEditingLinkRange: number[] | null = null
+
+  let focused = false;
 
   let fullBlock: Block;
 
@@ -41,150 +48,181 @@ import RichText from './RichText.svelte';
     .getBlockById(block.id)
     .then((b) => {
       if (b === undefined) {
-        fullBlock = adapter.writer.createNewBlock($pageStore.id, block.id).block
+        fullBlock = adapter.writer.createNewBlock($pageStore.id, block.id)
+          .block;
       } else {
-        fullBlock = b
+        fullBlock = b;
       }
     })
-    .catch((e) => {
-    });
+    .catch((e) => {});
 
   $: {
-    if ($editingBlockId === block.id)  {
-      focused = true
+    if ($editingBlockId === block.id) {
+      focused = true;
       tick().then(() => {
         if ($anchorOffset !== null) {
-          editor.setSelectionRange($anchorOffset, $anchorOffset)
+          editor.setSelectionRange($anchorOffset, $anchorOffset);
         }
-      })
+      });
     } else {
-      focused = false
+      focused = false;
     }
   }
 
   $: {
     if (focused && editor) {
-      editor.focus()
+      editor.focus();
     }
   }
 
+  const onSelectPageOnSuggestion = (page: Page) => (e) => {
+		e.preventDefault()
+		if (editor && currentEditingLinkRange) {
+			editor.setRangeText(page.title, currentEditingLinkRange[0] , currentEditingLinkRange[1])
+			updateContent(editor.value)
+			currentEditingLinkRange = null
+			textareaCaret = null
+		}
+	}
+
+
   function updateContent(content: string) {
     // TODO: adapter update block
-    fullBlock.content = content
+    fullBlock.content = content;
   }
 
   async function onKeyDownListener(e) {
-
-    setTimeout(() => {
-			if (editor) {
-				const { selectionStart, selectionEnd } = editor
-				const ranges = isInBracket(editor.value, selectionStart)
-				if (ranges) {
-					// search page
-					const [ start, end ] = ranges
-					// currentEditingLinkRange = ranges
-					const keyword = editor.value.slice(start, end)
-					// const results = DB.get().searchPageByKeyword(keyword)
-					const caret = getCaretCoordinates(editor, start)
-					if (!textareaCaret) {
-						textareaCaret = caret
-					}
-					// searchResults = results
-				} else {
-					textareaCaret = null
-				}
-			}
-		})
+    setTimeout(async () => {
+      if (editor) {
+        const { selectionStart, selectionEnd } = editor;
+        const ranges = isInBracket(editor.value, selectionStart);
+        if (ranges) {
+          // search page
+          const [start, end] = ranges;
+          currentEditingLinkRange = ranges
+          const keyword = editor.value.slice(start, end);
+          const results = await adapter.reader.searchPageByKeyword(keyword);
+          const caret = getCaretCoordinates(editor, start);
+          if (!textareaCaret) {
+            textareaCaret = caret;
+          }
+          searchResults = results;
+          console.log(searchResults);
+        } else {
+          textareaCaret = null;
+        }
+      }
+    });
 
     switch (e.key) {
       case "Enter":
         if (!e.shiftKey) {
           e.preventDefault();
-          let newBlockId
+          let newBlockId;
           if (!editor.value) {
             // backward
             if (path.length > 1) {
-              pageStore.getPageEngine().backward(path)
+              pageStore.getPageEngine().backward(path);
             } else {
-              const newBlock = pageStore.getPageEngine().apendBlockAt(path, adapter.writer.createNewBlock($pageStore.id).shallow)
-              newBlockId = newBlock.block.id
+              const newBlock = pageStore
+                .getPageEngine()
+                .apendBlockAt(
+                  path,
+                  adapter.writer.createNewBlock($pageStore.id).shallow
+                );
+              newBlockId = newBlock.block.id;
             }
           } else {
             if (editor.selectionStart === 0) {
-              const newBlock = pageStore.getPageEngine().prependBlockAt(path, adapter.writer.createNewBlock($pageStore.id).shallow);
-              newBlockId = newBlock.block.id
+              const newBlock = pageStore
+                .getPageEngine()
+                .prependBlockAt(
+                  path,
+                  adapter.writer.createNewBlock($pageStore.id).shallow
+                );
+              newBlockId = newBlock.block.id;
             } else {
               if (block.children.length) {
-                const newBlock = pageStore.getPageEngine().prependChild(path, adapter.writer.createNewBlock($pageStore.id).shallow);
-                newBlockId = newBlock.id
+                const newBlock = pageStore
+                  .getPageEngine()
+                  .prependChild(
+                    path,
+                    adapter.writer.createNewBlock($pageStore.id).shallow
+                  );
+                newBlockId = newBlock.id;
               } else {
-                const newBlock = pageStore.getPageEngine().apendBlockAt(path, adapter.writer.createNewBlock($pageStore.id).shallow)
-                newBlockId = newBlock.block.id
+                const newBlock = pageStore
+                  .getPageEngine()
+                  .apendBlockAt(
+                    path,
+                    adapter.writer.createNewBlock($pageStore.id).shallow
+                  );
+                newBlockId = newBlock.block.id;
               }
             }
           }
-          pageStore.updatePage()
+          pageStore.updatePage();
           if (newBlockId) {
-            $editingBlockId = newBlockId
+            $editingBlockId = newBlockId;
           }
         }
         break;
-      case 'Tab':
+      case "Tab":
         if (path[path.length - 1] !== 0) {
-          e.preventDefault()
-          pageStore.getPageEngine().forward(path)
-          pageStore.updatePage()
+          e.preventDefault();
+          pageStore.getPageEngine().forward(path);
+          pageStore.updatePage();
         }
-        break
-      case 'Backspace':
+        break;
+      case "Backspace":
         if (!editor.value && !(block.children.length > 0)) {
-          pageStore.getPageEngine().remove(path)
-          pageStore.updatePage()
+          pageStore.getPageEngine().remove(path);
+          pageStore.updatePage();
         }
-        break
-      case '{':
-				{
-					const [ start, end ] = [editor.selectionStart, editor.selectionEnd]
-					if (start === end) {
-						editor.setRangeText('}', start, end)
-					}
-				}
-				break
-      case '[':
-				{
-					const [ start, end ] = [editor.selectionStart, editor.selectionEnd]
-					if (start === end) {
-						editor.setRangeText(']', start, end)
-					} else {
-						editor.setSelectionRange(start, start)
-						// editor.setRangeText('[', start, start)
-						editor.setRangeText(']', end, end)
+        break;
+      case "{":
+        {
+          const [start, end] = [editor.selectionStart, editor.selectionEnd];
+          if (start === end) {
+            editor.setRangeText("}", start, end);
+          }
+        }
+        break;
+      case "[":
+        {
+          const [start, end] = [editor.selectionStart, editor.selectionEnd];
+          if (start === end) {
+            editor.setRangeText("]", start, end);
+          } else {
+            editor.setSelectionRange(start, start);
+            // editor.setRangeText('[', start, start)
+            editor.setRangeText("]", end, end);
 
-						setTimeout(() => {
-							editor.setSelectionRange(start + 1, end + 1)
-						})
-					}
-				}
-				break
+            setTimeout(() => {
+              editor.setSelectionRange(start + 1, end + 1);
+            });
+          }
+        }
+        break;
       default:
-        break
+        break;
     }
   }
 
   function onClickPreview() {
     if (editable) {
-			$editingBlockId = block.id
-		}
+      $editingBlockId = block.id;
+    }
   }
 
   function onClickOutside() {
-    $editingBlockId = null
-    $anchorOffset = null
-		textareaCaret = null
+    $editingBlockId = null;
+    $anchorOffset = null;
+    textareaCaret = null;
   }
 
   function onChangeContent(e) {
-    updateContent(e.target.value)
+    updateContent(e.target.value);
   }
 </script>
 
@@ -195,24 +233,39 @@ import RichText from './RichText.svelte';
   <div class="flex-1">
     {#if fullBlock}
       {#if focused}
-				<div class="relative">
-        {#if textareaCaret}
-        <div class="z-10 bg-white absolute w-64 border border-gray-100 overflow-scroll" style={`height: 200px; top: ${textareaCaret.top + 24}px; left: ${textareaCaret.left}px;`}>
-
-        </div>
-        {/if}
-        <textarea
-        use:clickOutside={onClickOutside}
-        on:keydown={onKeyDownListener}
-        spellcheck={false}
-        bind:this={editor}
-        class="editor"
-        use:autoResize
-        on:change={onChangeContent}>{fullBlock.content}</textarea>
+        <div class="relative">
+          {#if textareaCaret}
+            <div
+              class="z-10 bg-white absolute w-64 border border-gray-100 overflow-scroll"
+              style={`height: 200px; top: ${textareaCaret.top + 24}px; left: ${
+                textareaCaret.left
+              }px;`}
+            >
+              {#each searchResults as result (result.id)}
+                <a
+                  on:click|stopPropagation={onSelectPageOnSuggestion(result)}
+                  class="block hover:bg-gray-100 px-2 py-2 text-sm cursor-pointer"
+                  >{result.title}</a
+                >
+              {/each}
+            </div>
+          {/if}
+          <textarea
+            use:clickOutside={onClickOutside}
+            on:keydown={onKeyDownListener}
+            spellcheck={false}
+            bind:this={editor}
+            class="editor"
+            use:autoResize
+            on:change={onChangeContent}>{fullBlock.content}</textarea>
         </div>
       {:else}
-        <div bind:this={previewWrapper} class="preview"  on:click|stopPropagation={onClickPreview}>
-          <RichText updateContent={updateContent} content={fullBlock.content} />
+        <div
+          bind:this={previewWrapper}
+          class="preview"
+          on:click|stopPropagation={onClickPreview}
+        >
+          <RichText {updateContent} content={fullBlock.content} />
         </div>
       {/if}
     {/if}
