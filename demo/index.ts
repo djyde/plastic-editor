@@ -1,8 +1,11 @@
 // @ts-expect-error
-import Editor  from './src/Editor.svelte'
-import type { Block, Page } from '@plastic-editor/protocol/lib/protocol'
-import { InMemoryAdapter } from './src/adapters/InMemory'
+import Editor from "../src/Editor.svelte";
+import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
+import { InMemoryAdapter } from "../src/adapters/InMemory";
+// @ts-expect-error
+import ExternalLink from './blocks/ExternalLink.svelte'
 
+import  type {Rule} from '../src/parser'
 const page = {
   id: "page",
   title: "page",
@@ -53,7 +56,7 @@ const blocks = {
   },
   block4: {
     id: "block4",
-    content: "block4",
+    content: "block4 [External Link](https://zi.lutaonan.com) link",
     references: [],
     pageId: "page",
   },
@@ -65,11 +68,31 @@ const blocks = {
   },
 } as { [key: string]: Block };
 
+const rules = [
+  {
+    match: /\[([^\]]+)\]\(([^\)]+)\)/,
+    processor(matched, position) {
+      return {
+        type: "ExternalLink",
+        meta: {
+          component: ExternalLink,
+          props: {
+            title: matched[1],
+            url: matched[2],
+          },
+        },
+        position,
+        matched,
+      };
+    },
+  },
+] as Rule[];
+
 const editor = new Editor({
   target: document.querySelector("#app"),
   props: {
-    pageId: 'page',
-    adapter: new InMemoryAdapter([page], blocks)
-  }
-})
-
+    pageId: "page",
+    adapter: new InMemoryAdapter([page], blocks),
+    rules
+  },
+});
