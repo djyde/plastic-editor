@@ -332,7 +332,8 @@ export const blocks = {
   },
   IPUheQd7: {
     id: "IPUheQd7",
-    content: "Export notebook as a static websites, like [Andy Note]()",
+    content:
+      "Export notebook as a static websites, like [Andy Note](https://notes.andymatuschak.org/)",
     pageId: "page",
     references: [],
   },
