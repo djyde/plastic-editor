@@ -20,10 +20,10 @@ export class InMemoryAdapter implements Adapter {
   };
 
   writer = {
-    createNewBlock: (pageId: string, blockId?: string) => {
+    createNewBlock: (pageId: string, blockId?: string, defaultContent?: string) => {
       const block = {
         id: blockId || nanoid(8),
-        content: "",
+        content: defaultContent || "",
         pageId: pageId,
         references: [],
       } as Block;

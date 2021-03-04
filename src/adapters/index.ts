@@ -3,7 +3,8 @@ import type { Block, Page, ShallowBlock } from "@plastic-editor/protocol/lib/pro
 export interface Writer {
   createNewBlock(
     pageId: string,
-    blockId?: string
+    blockId?: string,
+    defaultContent?: string
   ): {
     block: Block;
     shallow: ShallowBlock

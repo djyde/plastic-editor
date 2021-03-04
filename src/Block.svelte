@@ -1,5 +1,15 @@
 <script lang="ts">
-  import { editingBlockId, anchorOffset } from "./store";
+
+  /**
+   * 
+   * IMPORTANT:
+   * 
+   * 1. Should always use `updateContent()` to update current block content, instead of using editor.value = xxx
+   * 2. Remember using `pageStore.updatePage()` after changing the page structure
+   * 
+  */
+
+  import { editingBlockId, anchorOffset, textToAppend } from "./store";
   import { getContext, tick } from "svelte";
   import { clickOutside, autoResize } from "./actions";
   import { isInBracket } from "./utils";
@@ -60,12 +70,26 @@
     if ($editingBlockId === block.id) {
       focused = true;
       tick().then(() => {
-        if ($anchorOffset !== null) {
-          editor.setSelectionRange($anchorOffset, $anchorOffset);
-        }
+        handleAnchor()
       });
     } else {
       focused = false;
+    }
+  }
+
+  function handleAnchor() {
+    if (editor) {
+        if ($anchorOffset !== null) {
+        editor.setSelectionRange($anchorOffset, $anchorOffset);
+      }
+      if ($textToAppend !== null) {
+        const pos = editor.value.length
+        updateContent(editor.value + $textToAppend)
+        $textToAppend = null
+        tick().then(() => {
+          editor.setSelectionRange(pos, pos);
+        })
+      }
     }
   }
 
@@ -142,23 +166,27 @@
                 );
               newBlockId = newBlock.block.id;
             } else {
+              const textAfterCursor = editor.value.slice(editor.selectionStart)
               if (block.children.length) {
                 const newBlock = pageStore
                   .getPageEngine()
                   .prependChild(
                     path,
-                    adapter.writer.createNewBlock($pageStore.id).shallow
+                    adapter.writer.createNewBlock($pageStore.id, null, textAfterCursor).shallow
                   );
                 newBlockId = newBlock.id;
+                $anchorOffset = 0
               } else {
                 const newBlock = pageStore
                   .getPageEngine()
                   .apendBlockAt(
                     path,
-                    adapter.writer.createNewBlock($pageStore.id).shallow
+                    adapter.writer.createNewBlock($pageStore.id, null, textAfterCursor).shallow
                   );
                 newBlockId = newBlock.block.id;
+                $anchorOffset = 0
               }
+              updateContent(editor.value.slice(0, editor.selectionStart))
             }
           }
           pageStore.updatePage();
@@ -174,12 +202,26 @@
           pageStore.updatePage();
         }
         break;
-      case "Backspace":
-        if (!editor.value && !(block.children.length > 0)) {
-          pageStore.getPageEngine().remove(path);
-          pageStore.updatePage();
+      case "Backspace": {
+        if (editor.selectionStart === 0) {
+          if (!editor.value && !(block.children.length > 0)) {
+            e.preventDefault()
+            pageStore.getPageEngine().remove(path);
+            const [ closest, closetPos ] = pageStore.getPageEngine().upClosest(path)
+            $editingBlockId = closest.id
+            pageStore.updatePage();
+          } else if (editor.value && !(block.children.length > 0)) {
+            e.preventDefault()
+            const [ closest, closetPos ] = pageStore.getPageEngine().upClosest(path)
+            pageStore.getPageEngine().remove(path)
+            $textToAppend = editor.value
+            $editingBlockId = closest.id
+            pageStore.updatePage();
+          }
         }
+
         break;
+      }
       case "{":
         {
           const [start, end] = [editor.selectionStart, editor.selectionEnd];
@@ -243,6 +285,7 @@
             >
               {#each searchResults as result (result.id)}
                 <a
+                  href="/"
                   on:click|stopPropagation={onSelectPageOnSuggestion(result)}
                   class="block hover:bg-gray-100 px-2 py-2 text-sm cursor-pointer"
                   >{result.title}</a
