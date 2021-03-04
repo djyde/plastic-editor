@@ -3,4 +3,4 @@
   export let url = ""
 </script>
 
-<img src={url} alt={alt} class="w-full" style="" />
+<img src={url} alt={alt} class="max-w-full" style="" />
