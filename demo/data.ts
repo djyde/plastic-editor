@@ -87,6 +87,10 @@ export const pages = [
         id: "ovoYp1yj",
         children: [
           {
+            id: "KDy5NPVM",
+            children: [],
+          },
+          {
             id: "w7fHKW6V",
             children: [],
           },
@@ -101,6 +105,15 @@ export const pages = [
           },
           {
             id: "jfZCsRQz",
+            children: [],
+          },
+        ],
+      },
+      {
+        id: "8wWw1HyQ",
+        children: [
+          {
+            id: "VlRiNEpo",
             children: [],
           },
         ],
@@ -326,14 +339,14 @@ export const blocks = {
   IycGZWLO: {
     id: "IycGZWLO",
     content:
-      "Local first. Save the data on local with a plain text (`.json` file)",
+      "Local first. Save the data on local with a **plain text** (`.json` file)",
     pageId: "page",
     references: [],
   },
   IPUheQd7: {
     id: "IPUheQd7",
     content:
-      "Export notebook as a static websites, like [Andy Note](https://notes.andymatuschak.org/)",
+      "Export notebook as a static website, like [Andy Note](https://notes.andymatuschak.org/)",
     pageId: "page",
     references: [],
   },
@@ -387,6 +400,32 @@ export const blocks = {
     id: "ANqkQHSb",
     content:
       "I've completed the MVP with bi-directional link, block reference, Daily notes. But I need to dog food myself long time enough to release the stable version.",
+    pageId: "page",
+    references: [],
+  },
+  "4n-eBarw": {
+    id: "4n-eBarw",
+    content: "",
+    pageId: "page",
+    references: [],
+  },
+  KDy5NPVM: {
+    id: "KDy5NPVM",
+    content:
+      "It's quite easy to extend the rich text syntax yourself, see the code [here](https://github.com/djyde/plastic-editor/blob/master/src/rules.ts).",
+    pageId: "page",
+    references: [],
+  },
+  "8wWw1HyQ": {
+    id: "8wWw1HyQ",
+    content: "How to use it?",
+    pageId: "page",
+    references: [],
+  },
+  VlRiNEpo: {
+    id: "VlRiNEpo",
+    content:
+      "Since it is not stable now, I didn't write the document. But you can see the code [here](https://github.com/djyde/plastic-editor/blob/master/demo/index.ts)",
     pageId: "page",
     references: [],
   },
