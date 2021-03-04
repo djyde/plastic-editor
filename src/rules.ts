@@ -1,6 +1,8 @@
 import Code from './blocks/Code.svelte'
 import Bold from './blocks/Bold.svelte'
 import Todo from './blocks/Todo.svelte'
+import Image from "./blocks/Image.svelte";
+
 import type { Rule } from './parser';
 
 export default [
@@ -12,8 +14,8 @@ export default [
         meta: {
           component: Code,
           props: {
-            content: matched[1]
-          }
+            content: matched[1],
+          },
         },
         position,
         matched,
@@ -67,5 +69,22 @@ export default [
         matched,
       };
     },
+  },
+  {
+    match: /!\[([^\]]*)]\(([^\)]+)\)/,
+    processor(matched, position) {
+      return {
+        type: 'IMAGE',
+        meta: {
+          component: Image,
+          props: {
+            alt: matched[1],
+            url: matched[2]
+          }
+        },
+        position,
+        matched
+      }
+    }
   },
 ] as Rule[];

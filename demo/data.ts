@@ -107,6 +107,10 @@ export const pages = [
             id: "jfZCsRQz",
             children: [],
           },
+          {
+            id: "W9353GLr",
+            children: [],
+          },
         ],
       },
       {
@@ -426,6 +430,13 @@ export const blocks = {
     id: "VlRiNEpo",
     content:
       "Since it is not stable now, I didn't write the document. But you can see the code [here](https://github.com/djyde/plastic-editor/blob/master/demo/index.ts)",
+    pageId: "page",
+    references: [],
+  },
+  W9353GLr: {
+    id: "W9353GLr",
+    content:
+      "Image ![](https://assets.djyde.com/uPic/ZDAN1H.png?x-oss-process=style/high-optimize)",
     pageId: "page",
     references: [],
   },
