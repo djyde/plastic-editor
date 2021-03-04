@@ -2,8 +2,13 @@ import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
 import type { Adapter } from ".";
 import { nanoid } from 'nanoid'
 
+type Note = {
+  pages: Page[];
+  blocks: { [key: string]: Block };
+};
+
 export class InMemoryAdapter implements Adapter {
-  constructor(private pages: Page[], private blocks: { [key: string]: Block }) {
+  constructor(public pages: Page[] = [], public blocks: { [key: string]: Block } = {}) {
 
   }
 
@@ -17,6 +22,12 @@ export class InMemoryAdapter implements Adapter {
     getPageById: async (pageId: string) => {
       return this.pages.find(_ => _.id === pageId)
     },
+    output: () => {
+      return {
+        pages: this.pages,
+        blocks: this.blocks
+      }
+    }
   };
 
   writer = {
@@ -39,6 +50,19 @@ export class InMemoryAdapter implements Adapter {
       }
     },
 
+    createNewPage: (title: string) => {
+      const id = nanoid(8)
+      const page =  {
+        id,
+        title,
+        children: [
+          this.writer.createNewBlock(id).shallow
+        ]
+      }
+      this.pages.push(page)
+      return page
+    },
+
     updateBlock: (blockId: string, block: Block) => {
       this.blocks[blockId] = {
         ...this.blocks[blockId],
@@ -51,7 +75,7 @@ export class InMemoryAdapter implements Adapter {
       if (pageIndex !== -1) {
         this.pages[pageIndex] = page
       }
-    }
+    },
   }
 
   stringify() {
