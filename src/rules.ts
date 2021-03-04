@@ -2,6 +2,7 @@ import Code from './blocks/Code.svelte'
 import Bold from './blocks/Bold.svelte'
 import Todo from './blocks/Todo.svelte'
 import Image from "./blocks/Image.svelte";
+import YouTube from "./blocks/YouTube.svelte";
 
 import type { Rule } from './parser';
 
@@ -87,4 +88,20 @@ export default [
       }
     }
   },
+  {
+    match: /{{youtube: ([^}]+)}}/,
+    processor(matched, position) {
+      return {
+        type: "YOUTUBE",
+        meta: {
+          component: YouTube,
+          props: {
+            link: matched[1]
+          },
+        },
+        position,
+        matched,
+      };
+    }
+  }
 ] as Rule[];

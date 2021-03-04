@@ -6,7 +6,7 @@ import { InMemoryAdapter } from "../src/adapters/InMemory";
 import ExternalLink from "./blocks/ExternalLink.svelte";
 
 import type { Rule } from "../src/parser";
-import { pages, blocks } from './data'
+import data from './data'
 
 const rules = [
   {
@@ -28,7 +28,8 @@ const rules = [
   },
 ] as Rule[];
 
-const adapter = new InMemoryAdapter(pages, blocks);
+// @ts-expect-error
+const adapter = new InMemoryAdapter(data.pages, data.blocks);
 
 // @ts-expect-error
 window.adapter = adapter;
