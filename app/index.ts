@@ -1,11 +1,9 @@
-// @ts-expect-error
-import Editor from "../src/Editor.svelte";
+import Editor from "../editor/Editor.svelte";
 import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
-import { InMemoryAdapter } from "../src/adapters/InMemory";
-// @ts-expect-error
+import { InMemoryAdapter } from "../editor/adapters/InMemory";
 import ExternalLink from "./blocks/ExternalLink.svelte";
 
-import type { Rule } from "../src/parser";
+import type { Rule } from "../editor/parser";
 import data from './data'
 
 const rules = [

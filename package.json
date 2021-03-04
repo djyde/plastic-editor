@@ -7,7 +7,7 @@
   "main": "./dist/editor.umd.js",
   "module": "./dist/editor.es.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --config vite.app.config.js",
     "build": "vite build",
     "build:lib": "vite build --config vite.library.config.js",
     "serve": "vite preview"

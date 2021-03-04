@@ -1,7 +1,12 @@
 module.exports = {
   plugins: {
     tailwindcss: {
-      purge: ["src/**/*.svelte", "index.html", "demo/**/*.svelte"],
+      purge: [
+        "editor/**/*.svelte",
+        "index.html",
+        "app/**/*.svelte",
+        "app/index.html",
+      ],
     },
     autoprefixer: {},
   },
