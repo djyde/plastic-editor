@@ -324,7 +324,7 @@
       class="self-stretch bg-gray-300"
       style="width: 1px; margin-left: 2px"
     />
-    <div class="flex-1">
+    <div class="flex-1 max-w-full">
       {#each block.children as child, index (child.id)}
         <svelte:self block={child} path={path.concat(index)} />
       {/each}
