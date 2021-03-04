@@ -67,20 +67,23 @@
     .catch((e) => {});
 
   $: {
+    // would call twice. Please careful about performance
     if ($editingBlockId === block.id) {
       focused = true;
       tick().then(() => {
-        handleAnchor()
+        handleAnchor(editor)
       });
     } else {
       focused = false;
     }
   }
 
-  function handleAnchor() {
+  function handleAnchor(editor) {
     if (editor) {
-        if ($anchorOffset !== null) {
+      if ($anchorOffset !== null) {
         editor.setSelectionRange($anchorOffset, $anchorOffset);
+      } else {
+        editor.setSelectionRange(editor.value.length, editor.value.length);
       }
       if ($textToAppend !== null) {
         const pos = editor.value.length
@@ -208,6 +211,7 @@
             e.preventDefault()
             pageStore.getPageEngine().remove(path);
             const [ closest, closetPos ] = pageStore.getPageEngine().upClosest(path)
+            $anchorOffset = null
             $editingBlockId = closest.id
             pageStore.updatePage();
           } else if (editor.value && !(block.children.length > 0)) {
