@@ -1,9 +1,15 @@
 {
-  "name": "editor",
-  "version": "0.0.0",
+  "name": "@plastic-editor/editor",
+  "version": "0.0.1",
+  "files":[
+    "dist"
+  ],
+  "main": "./dist/editor.umd.js",
+  "module": "./dist/editor.es.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:lib": "vite build --config vite.library.config.js",
     "serve": "vite preview"
   },
   "devDependencies": {
@@ -15,12 +21,12 @@
     "svelte-preprocess": "^4.6.9",
     "tailwindcss": "^2.0.3",
     "typescript": "^4.2.2",
-    "vite": "^2.0.5"
+    "vite": "^2.0.5",
+    "svelte": "^3.35.0"
   },
   "dependencies": {
     "@plastic-editor/protocol": "^0.0.6",
     "nanoid": "^3.1.20",
-    "svelte": "^3.35.0",
     "textarea-caret": "^3.1.0"
   }
 }

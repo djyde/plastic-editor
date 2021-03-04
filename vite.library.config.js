@@ -1,5 +1,6 @@
 import svelte from "rollup-plugin-svelte";
 import autoPreprocess from "svelte-preprocess";
+import path from 'path'
 
 export default {
   plugins: [
@@ -8,9 +9,10 @@ export default {
     }),
   ],
   build: {
-    outDir: 'public',
-    rollupOptions: {
-
-    },
+    rollupOptions: {},
+    lib: {
+      entry: path.resolve(__dirname, './src/Editor.svelte'),
+      name: 'PlasticEditor'
+    }
   },
 };
