@@ -54,7 +54,7 @@ import RichText from './RichText.svelte';
       focused = true
       tick().then(() => {
         if ($anchorOffset !== null) {
-          editor.selectionEnd = $anchorOffset
+          editor.setSelectionRange($anchorOffset, $anchorOffset)
         }
       })
     } else {
