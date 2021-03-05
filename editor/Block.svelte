@@ -220,6 +220,9 @@
         break;
       case "Backspace": {
         if (editor.selectionStart === 0) {
+          if (path.length === 0  && path[0] === 0) {
+            return
+          }
           if (!editor.value && !(block.children.length > 0)) {
             e.preventDefault();
             pageStore.getPageEngine().remove(path);
