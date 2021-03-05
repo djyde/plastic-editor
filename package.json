@@ -8,7 +8,7 @@
   "module": "./dist/editor.es.js",
   "scripts": {
     "dev": "vite --config vite.app.config.js",
-    "build": "vite build",
+    "build": "vite build --config vite.app.config.js",
     "build:lib": "vite build --config vite.library.config.js",
     "serve": "vite preview"
   },
