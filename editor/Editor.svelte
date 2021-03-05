@@ -63,13 +63,7 @@
 <div>
   {#if $pageStore}
     {#each $pageStore.children as block, index (block.id)}
-      {#if initialBlockId}
-        {#if initialBlockId === block.id}
-          <Block editable={editable} {block} path={[index]} />
-        {/if}
-      {:else}
-        <Block editable={editable} {block} path={[index]} />
-      {/if}
+      <Block initialBlockId={initialBlockId} editable={editable} {block} path={[index]} />
     {/each}
   {/if}
 </div>

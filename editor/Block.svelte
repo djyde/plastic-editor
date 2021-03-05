@@ -22,6 +22,7 @@
   import type { Adapter } from "./adapters";
   import RichText from "./RichText.svelte";
   import getCaretCoordinates from "textarea-caret";
+  import { init } from "svelte/internal";
 
   const { adapter, pageStore, onKeyDown } = getContext("plastic") as {
     onKeyDown?: () => void;
@@ -38,6 +39,9 @@
   export let path: number[] = [];
   export let block: ShallowBlock;
   export let editable = true;
+  export let initialBlockId
+  export let intiialBlockDectedEnd = false
+
   let searchResults: Page[] = [];
   let textareaCaret: null | {
     top: number;
@@ -273,6 +277,7 @@
   }
 </script>
 
+{#if intiialBlockDectedEnd || !initialBlockId || initialBlockId === block.id}
 <div class="main flex mb-2">
   <div class="pl-4 pr-2" style="margin-top: 10px;">
     <div class=" bg-gray-900 rounded-full" style="width: 5px; height: 5px;" />
@@ -318,6 +323,7 @@
     {/if}
   </div>
 </div>
+
 {#if block.children.length > 0}
   <div class="ml-4 children flex">
     <div
@@ -326,8 +332,14 @@
     />
     <div class="flex-1 max-w-full">
       {#each block.children as child, index (child.id)}
-        <svelte:self editable={editable} block={child} path={path.concat(index)} />
+        <svelte:self intiialBlockDectedEnd={true} initialBlockId={initialBlockId} editable={editable} block={child} path={path.concat(index)} />
       {/each}
     </div>
   </div>
+{/if}
+
+{:else}
+  {#each block.children as child, index (child.id)}
+    <svelte:self initialBlockId={initialBlockId} editable={editable} block={child} path={path.concat(index)} />
+  {/each}
 {/if}
