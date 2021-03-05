@@ -139,7 +139,6 @@
             textareaCaret = caret;
           }
           searchResults = results;
-          console.log(searchResults);
         } else {
           textareaCaret = null;
         }

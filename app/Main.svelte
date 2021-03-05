@@ -10,6 +10,8 @@
 
   import saveIcon from "./assets/save.svg";
   import downloadIcon from "./assets/download.svg";
+  import folderOpenIcon from "./assets/folderOpen.svg";
+
 
   import FileSaver from 'file-saver'
   import adapter from "./adapter";
@@ -34,6 +36,12 @@
     }
   }
 
+  async function onUploadFile(e) {
+    const file = this.files[0] as File
+    const text = await file.text()
+    db.reinit(text)
+  }
+
   async function exportAsJson () {
     const notes = await db.getNote()
     const jsonString = JSON.stringify(notes)
@@ -45,12 +53,14 @@
 <div class="flex h-screen">
   <aside class="w-64 bg-gray-100">
     <div class="flex p-4 space-x-2">
-      <button class="bg-white shadow rounded p-1" on:click={save}>
+      <button class="bg-white shadow rounded p-1" on:click={exportAsJson}>
         <img class="max-w-full block" src={saveIcon} alt="save button" />
       </button>
-      <button class="bg-white shadow rounded p-1" on:click={exportAsJson}>
-        <img class="max-w-full block" src={downloadIcon} alt="download button" />
-      </button>
+
+      <input on:change={onUploadFile} type="file" class="hidden" id="import" />
+      <label for="import" class="cursor-pointer	">
+        <img class="bg-white shadow rounded p-1 max-w-full block" src={folderOpenIcon} alt="open file" />
+      </label>
     </div>
 
     <div class="font-medium mt-4">
