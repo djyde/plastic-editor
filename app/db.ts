@@ -1,16 +1,13 @@
 import lf from 'localforage'
 import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
 import adapter from './adapter'
+import { isStale } from './store'
 import dayjs from 'dayjs'
+import { Note } from '../editor/adapters';
 
 const db = lf.createInstance({
   name: 'plastic'
 })
-
-export type Note = {
-  pages: Page[],
-  blocks: {[key: string]: Block}
-}
 
 export async function getNote() {
   return await db.getItem('note') as Note
@@ -30,14 +27,18 @@ export async function init() {
 
   if (!note) {
   } else {
-    adapter.pages = note.pages
-    adapter.blocks = note.blocks
+    adapter.note = {
+      pages: note.pages,
+      blocks: note.blocks,
+      stars: note.stars || []
+    }
   }
 }
 
 export async function persist() {
   const note = adapter.reader.output()
   await save(note)
+  isStale.set(false)
 }
 
 export async function save(note: Note) {

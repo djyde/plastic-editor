@@ -1,10 +1,11 @@
 import type { Block, Page, ShallowBlock } from "@plastic-editor/protocol/lib/protocol";
 
-export type Note = {
-  blocks: { [key: string]: Block };
-  pages: Page[];
-};
 
+export type Note = {
+  pages: Page[];
+  blocks: { [key: string]: Block };
+  stars?: string[];
+};
 export interface Writer {
   createNewBlock(
     pageId: string,
@@ -22,11 +23,11 @@ export interface Writer {
 }
 
 export interface Reader {
-  searchPageByKeyword(keyword: string): Promise<Page[]>
-  getPageById(pageId: string): Promise<Page>
-  getBlockById(blockId: string): Promise<Block>
+  searchPageByKeyword(keyword: string): Page[];
+  getPageById(pageId: string): Page | undefined;
+  getBlockById(blockId: string): Block | undefined;
 
-  output(): Note
+  output(): Note;
 }
 
 export interface Adapter {

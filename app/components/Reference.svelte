@@ -11,9 +11,7 @@ import rules from "../rules";
   let page: Page
 
   $: {
-    adapter.reader.getPageById(pageId).then((val) => {
-      page = val
-    })
+    page = adapter.reader.getPageById(pageId)
   }
 </script>
 

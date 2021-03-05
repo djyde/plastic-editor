@@ -1,13 +1,12 @@
 <script lang="ts">
-
   /**
-   * 
+   *
    * IMPORTANT:
-   * 
+   *
    * 1. Should always use `updateContent()` to update current block content, instead of using editor.value = xxx
    * 2. Remember using `pageStore.updatePage()` after changing the page structure
-   * 
-  */
+   *
+   */
 
   import { editingBlockId, anchorOffset, textToAppend } from "./store";
   import { getContext, tick } from "svelte";
@@ -39,8 +38,8 @@
   export let path: number[] = [];
   export let block: ShallowBlock;
   export let editable = true;
-  export let initialBlockId
-  export let intiialBlockDectedEnd = false
+  export let initialBlockId;
+  export let intiialBlockDectedEnd = false;
 
   let searchResults: Page[] = [];
   let textareaCaret: null | {
@@ -52,30 +51,28 @@
   let editor: HTMLTextAreaElement | null = null;
   let previewWrapper: HTMLDivElement | null = null;
 
-	let currentEditingLinkRange: number[] | null = null
+  let currentEditingLinkRange: number[] | null = null;
 
   let focused = false;
 
   let fullBlock: Block;
 
-  $: adapter.reader
-    .getBlockById(block.id)
-    .then((b) => {
-      if (b === undefined) {
-        fullBlock = adapter.writer.createNewBlock($pageStore.id, block.id)
-          .block;
-      } else {
-        fullBlock = b;
-      }
-    })
-    .catch((e) => {});
+  $: {
+    const b = adapter.reader.getBlockById(block.id);
+
+    if (b === undefined) {
+      fullBlock = adapter.writer.createNewBlock($pageStore.id, block.id).block;
+    } else {
+      fullBlock = b;
+    }
+  }
 
   $: {
     // would call twice. Please careful about performance
     if ($editingBlockId === block.id) {
       focused = true;
       tick().then(() => {
-        handleAnchor(editor)
+        handleAnchor(editor);
       });
     } else {
       focused = false;
@@ -90,12 +87,12 @@
         editor.setSelectionRange(editor.value.length, editor.value.length);
       }
       if ($textToAppend !== null) {
-        const pos = editor.value.length
-        updateContent(editor.value + $textToAppend)
-        $textToAppend = null
+        const pos = editor.value.length;
+        updateContent(editor.value + $textToAppend);
+        $textToAppend = null;
         tick().then(() => {
           editor.setSelectionRange(pos, pos);
-        })
+        });
       }
     }
   }
@@ -107,20 +104,23 @@
   }
 
   const onSelectPageOnSuggestion = (page: Page) => (e) => {
-		e.preventDefault()
-		if (editor && currentEditingLinkRange) {
-			editor.setRangeText(page.title, currentEditingLinkRange[0] , currentEditingLinkRange[1])
-			updateContent(editor.value)
-			currentEditingLinkRange = null
-			textareaCaret = null
-		}
-	}
-
+    e.preventDefault();
+    if (editor && currentEditingLinkRange) {
+      editor.setRangeText(
+        page.title,
+        currentEditingLinkRange[0],
+        currentEditingLinkRange[1]
+      );
+      updateContent(editor.value);
+      currentEditingLinkRange = null;
+      textareaCaret = null;
+    }
+  };
 
   function updateContent(content: string) {
     // TODO: adapter update block
     fullBlock.content = content;
-    adapter.writer.updateBlock(fullBlock.id, fullBlock)
+    adapter.writer.updateBlock(fullBlock.id, fullBlock);
   }
 
   async function onKeyDownListener(e) {
@@ -131,9 +131,9 @@
         if (ranges) {
           // search page
           const [start, end] = ranges;
-          currentEditingLinkRange = ranges
+          currentEditingLinkRange = ranges;
           const keyword = editor.value.slice(start, end);
-          const results = await adapter.reader.searchPageByKeyword(keyword);
+          const results = adapter.reader.searchPageByKeyword(keyword);
           const caret = getCaretCoordinates(editor, start);
           if (!textareaCaret) {
             textareaCaret = caret;
@@ -174,27 +174,35 @@
                 );
               newBlockId = newBlock.block.id;
             } else {
-              const textAfterCursor = editor.value.slice(editor.selectionStart)
+              const textAfterCursor = editor.value.slice(editor.selectionStart);
               if (block.children.length) {
                 const newBlock = pageStore
                   .getPageEngine()
                   .prependChild(
                     path,
-                    adapter.writer.createNewBlock($pageStore.id, null, textAfterCursor).shallow
+                    adapter.writer.createNewBlock(
+                      $pageStore.id,
+                      null,
+                      textAfterCursor
+                    ).shallow
                   );
                 newBlockId = newBlock.id;
-                $anchorOffset = 0
+                $anchorOffset = 0;
               } else {
                 const newBlock = pageStore
                   .getPageEngine()
                   .apendBlockAt(
                     path,
-                    adapter.writer.createNewBlock($pageStore.id, null, textAfterCursor).shallow
+                    adapter.writer.createNewBlock(
+                      $pageStore.id,
+                      null,
+                      textAfterCursor
+                    ).shallow
                   );
                 newBlockId = newBlock.block.id;
-                $anchorOffset = 0
+                $anchorOffset = 0;
               }
-              updateContent(editor.value.slice(0, editor.selectionStart))
+              updateContent(editor.value.slice(0, editor.selectionStart));
             }
           }
           pageStore.updatePage();
@@ -213,18 +221,22 @@
       case "Backspace": {
         if (editor.selectionStart === 0) {
           if (!editor.value && !(block.children.length > 0)) {
-            e.preventDefault()
+            e.preventDefault();
             pageStore.getPageEngine().remove(path);
-            const [ closest, closetPos ] = pageStore.getPageEngine().upClosest(path)
-            $anchorOffset = null
-            $editingBlockId = closest.id
+            const [closest, closetPos] = pageStore
+              .getPageEngine()
+              .upClosest(path);
+            $anchorOffset = null;
+            $editingBlockId = closest.id;
             pageStore.updatePage();
           } else if (editor.value && !(block.children.length > 0)) {
-            e.preventDefault()
-            const [ closest, closetPos ] = pageStore.getPageEngine().upClosest(path)
-            pageStore.getPageEngine().remove(path)
-            $textToAppend = editor.value
-            $editingBlockId = closest.id
+            e.preventDefault();
+            const [closest, closetPos] = pageStore
+              .getPageEngine()
+              .upClosest(path);
+            pageStore.getPageEngine().remove(path);
+            $textToAppend = editor.value;
+            $editingBlockId = closest.id;
             pageStore.updatePage();
           }
         }
@@ -278,68 +290,82 @@
 </script>
 
 {#if intiialBlockDectedEnd || !initialBlockId || initialBlockId === block.id}
-<div class="main flex mb-2">
-  <div class="pl-4 pr-2" style="margin-top: 10px;">
-    <div class=" bg-gray-900 rounded-full" style="width: 5px; height: 5px;" />
-  </div>
-  <div class="flex-1">
-    {#if fullBlock}
-      {#if focused}
-        <div class="relative">
-          {#if textareaCaret}
-            <div
-              class="z-10 bg-white absolute w-64 border border-gray-100 overflow-scroll"
-              style={`height: 200px; top: ${textareaCaret.top + 24}px; left: ${
-                textareaCaret.left
-              }px;`}
-            >
-              {#each searchResults as result (result.id)}
-                <a
-                  href="/"
-                  on:click|stopPropagation={onSelectPageOnSuggestion(result)}
-                  class="block hover:bg-gray-100 px-2 py-2 text-sm cursor-pointer"
-                  >{result.title}</a
-                >
-              {/each}
-            </div>
-          {/if}
-          <textarea
-            use:clickOutside={onClickOutside}
-            on:keydown={onKeyDownListener}
-            bind:this={editor}
-            class="editor"
-            use:autoResize
-            on:change={onChangeContent}>{fullBlock.content}</textarea>
-        </div>
-      {:else}
-        <div
-          bind:this={previewWrapper}
-          class="preview"
-          on:click|stopPropagation={onClickPreview}
-        >
-          <RichText {updateContent} content={fullBlock.content} shallowBlock={block} />
-        </div>
+  <div class="main flex mb-2">
+    <div class="pl-4 pr-2" style="margin-top: 10px;">
+      <div class=" bg-gray-900 rounded-full" style="width: 5px; height: 5px;" />
+    </div>
+    <div class="flex-1">
+      {#if fullBlock}
+        {#if focused}
+          <div class="relative">
+            {#if textareaCaret}
+              <div
+                class="z-10 bg-white absolute w-64 border border-gray-100 overflow-scroll"
+                style={`height: 200px; top: ${
+                  textareaCaret.top + 24
+                }px; left: ${textareaCaret.left}px;`}
+              >
+                {#each searchResults as result (result.id)}
+                  <a
+                    href="/"
+                    on:click|stopPropagation={onSelectPageOnSuggestion(result)}
+                    class="block hover:bg-gray-100 px-2 py-2 text-sm cursor-pointer"
+                    >{result.title}</a
+                  >
+                {/each}
+              </div>
+            {/if}
+            <textarea
+              use:clickOutside={onClickOutside}
+              on:keydown={onKeyDownListener}
+              bind:this={editor}
+              class="editor"
+              use:autoResize
+              on:change={onChangeContent}>{fullBlock.content}</textarea>
+          </div>
+        {:else}
+          <div
+            bind:this={previewWrapper}
+            class="preview"
+            on:click|stopPropagation={onClickPreview}
+          >
+            <RichText
+              {updateContent}
+              content={fullBlock.content}
+              shallowBlock={block}
+            />
+          </div>
+        {/if}
       {/if}
-    {/if}
-  </div>
-</div>
-
-{#if block.children.length > 0}
-  <div class="ml-4 children flex">
-    <div
-      class="self-stretch bg-gray-300"
-      style="width: 1px; margin-left: 2px"
-    />
-    <div class="flex-1 max-w-full">
-      {#each block.children as child, index (child.id)}
-        <svelte:self intiialBlockDectedEnd={true} initialBlockId={initialBlockId} editable={editable} block={child} path={path.concat(index)} />
-      {/each}
     </div>
   </div>
-{/if}
 
+  {#if block.children.length > 0}
+    <div class="ml-4 children flex">
+      <div
+        class="self-stretch bg-gray-300"
+        style="width: 1px; margin-left: 2px"
+      />
+      <div class="flex-1 max-w-full">
+        {#each block.children as child, index (child.id)}
+          <svelte:self
+            intiialBlockDectedEnd={true}
+            {initialBlockId}
+            {editable}
+            block={child}
+            path={path.concat(index)}
+          />
+        {/each}
+      </div>
+    </div>
+  {/if}
 {:else}
   {#each block.children as child, index (child.id)}
-    <svelte:self initialBlockId={initialBlockId} editable={editable} block={child} path={path.concat(index)} />
+    <svelte:self
+      {initialBlockId}
+      {editable}
+      block={child}
+      path={path.concat(index)}
+    />
   {/each}
 {/if}

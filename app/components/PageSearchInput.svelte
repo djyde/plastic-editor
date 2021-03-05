@@ -8,8 +8,8 @@
 
   let showResult = true;
 
-  async function searchPage(e) {
-    results = await adapter.reader.searchPageByKeyword(e.target.value);
+  function searchPage(e) {
+    results = adapter.reader.searchPageByKeyword(e.target.value);
   }
 
   // searchPage({ target: { value: "o" } });

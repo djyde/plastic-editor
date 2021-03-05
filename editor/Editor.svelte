@@ -13,7 +13,7 @@
   export let rules: Rule[] = [];
 
   export let initialBlockId: string;
-  export let editable = true
+  export let editable = true;
 
   function createPageStore() {
     let { subscribe, set } = writable<null | Page>(null);
@@ -50,20 +50,16 @@
     rules,
   });
 
-  $: adapter.reader
-    .getPageById(pageId)
-    .then((p) => {
-      pageStore.updatePageId(pageId);
-    })
-    .catch((e) => {
-      console.log(e);
-    });
+  $: {
+    // const page = adapter.reader.getPageById(pageId);
+    pageStore.updatePageId(pageId);
+  }
 </script>
 
 <div>
   {#if $pageStore}
     {#each $pageStore.children as block, index (block.id)}
-      <Block initialBlockId={initialBlockId} editable={editable} {block} path={[index]} />
+      <Block {initialBlockId} {editable} {block} path={[index]} />
     {/each}
   {/if}
 </div>
