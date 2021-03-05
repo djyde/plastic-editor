@@ -12,11 +12,13 @@ export interface Writer {
     defaultContent?: string
   ): {
     block: Block;
-    shallow: ShallowBlock
+    shallow: ShallowBlock;
   };
-  createNewPage(title: string): Page,
-  updateBlock(blockId: string, body): void
-  updatePage(pageId: string, page: Page)
+  createNewPage(title: string): Page;
+  updateBlock(blockId: string, body): void;
+  updatePage(pageId: string, page: Page);
+  setBlockPageReferences(blockId: string, pageIds: string[])
+  touchPageByTitle(title: string): Page;
 }
 
 export interface Reader {

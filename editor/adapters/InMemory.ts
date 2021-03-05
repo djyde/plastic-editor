@@ -8,30 +8,37 @@ type Note = {
 };
 
 export class InMemoryAdapter implements Adapter {
-  constructor(public pages: Page[] = [], public blocks: { [key: string]: Block } = {}) {
-
-  }
+  constructor(
+    public pages: Page[] = [],
+    public blocks: { [key: string]: Block } = {}
+  ) {}
 
   reader = {
     searchPageByKeyword: async (keyword: string) => {
-      return this.pages.filter(_ => _.title.match(new RegExp(`${keyword}`)))
+      return this.pages.filter((_) =>
+        _.title.match(new RegExp(`${keyword}`, "i"))
+      );
     },
     getBlockById: async (blockId: string) => {
       return this.blocks[blockId];
     },
     getPageById: async (pageId: string) => {
-      return this.pages.find(_ => _.id === pageId)
+      return this.pages.find((_) => _.id === pageId);
     },
     output: () => {
       return {
         pages: this.pages,
-        blocks: this.blocks
-      }
-    }
+        blocks: this.blocks,
+      };
+    },
   };
 
   writer = {
-    createNewBlock: (pageId: string, blockId?: string, defaultContent?: string) => {
+    createNewBlock: (
+      pageId: string,
+      blockId?: string,
+      defaultContent?: string
+    ) => {
       const block = {
         id: blockId || nanoid(8),
         content: defaultContent || "",
@@ -39,49 +46,65 @@ export class InMemoryAdapter implements Adapter {
         references: [],
       } as Block;
 
-      this.blocks[block.id] = block
+      this.blocks[block.id] = block;
 
       return {
         block,
         shallow: {
           id: block.id,
-          children: []
-        }
-      }
+          children: [],
+        },
+      };
     },
 
     createNewPage: (title: string) => {
-      const id = nanoid(8)
-      const page =  {
+      const id = nanoid(8);
+      const page = {
         id,
         title,
-        children: [
-          this.writer.createNewBlock(id).shallow
-        ]
-      }
-      this.pages.push(page)
-      return page
+        children: [this.writer.createNewBlock(id).shallow],
+      };
+      this.pages.push(page);
+      return page;
     },
 
     updateBlock: (blockId: string, block: Block) => {
       this.blocks[blockId] = {
         ...this.blocks[blockId],
-        ...block
-      }
+        ...block,
+      };
     },
-    
+
     updatePage: (pageId: string, page: Page) => {
-      const pageIndex = this.pages.findIndex(_ => _.id === pageId)
+      const pageIndex = this.pages.findIndex((_) => _.id === pageId);
       if (pageIndex !== -1) {
-        this.pages[pageIndex] = page
+        this.pages[pageIndex] = page;
       }
     },
-  }
+
+    setBlockPageReferences: (blockId: string, pageIds: string[]) => {
+      this.blocks[blockId].references = pageIds
+    },
+
+    touchPageByTitle: (title: string) => {
+      const existed = this.pages.find(_ => _.title === title );
+      console.log(existed)
+      if (!existed) {
+        return this.writer.createNewPage(title);
+      } else {
+        return existed;
+      }
+    }
+  };
 
   stringify() {
-    return JSON.stringify({
-      pages: this.pages,
-      blocks: this.blocks
-    }, null, 2)
+    return JSON.stringify(
+      {
+        pages: this.pages,
+        blocks: this.blocks,
+      },
+      null,
+      2
+    );
   }
 }

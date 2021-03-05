@@ -3,9 +3,12 @@
   import { tokenizer } from "./parser";
   import type { Rule, Token } from './parser'
 import { getContext } from 'svelte';
+import adapter from '../app/adapter';
+import type { ShallowBlock } from '@plastic-editor/protocol/lib/protocol';
 
   export let updateContent
   export let content = ""
+  export let shallowBlock: ShallowBlock
 
   let toMatch = `${content}`;
 
@@ -30,7 +33,7 @@ import { getContext } from 'svelte';
   }
 
   // collect block reference pages
-  // db.setBlockPageReferences(blockBody.id, tokens.filter(_ => _.type === 'LINK' || _.type === 'TAG').map(_ => _.meta.page.id))
+  adapter.writer.setBlockPageReferences(shallowBlock.id, tokens.filter(_ => _.type === 'LINK' || _.type === 'TAG').map(_ => _.meta.pageId))
 
 </script>
 

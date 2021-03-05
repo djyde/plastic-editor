@@ -312,7 +312,7 @@
           class="preview"
           on:click|stopPropagation={onClickPreview}
         >
-          <RichText {updateContent} content={fullBlock.content} />
+          <RichText {updateContent} content={fullBlock.content} shallowBlock={block} />
         </div>
       {/if}
     {/if}

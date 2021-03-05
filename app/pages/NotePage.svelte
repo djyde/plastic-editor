@@ -1,15 +1,21 @@
-<script>
+<script lang="ts">
   import { getContext } from "svelte";
-  import adapter from "./adapter";
-  import Editor from '../editor/Editor.svelte'
-  import rules from './rules'
+  import adapter from "../adapter";
+  import Editor from '../../editor/Editor.svelte'
+  import rules from '../rules'
+  import type { Page } from "@plastic-editor/protocol/lib/protocol";
 
   export let pageId = "";
 
-  const page = adapter.pages.find((_) => _.id === pageId);
-  
+  let page: Page
+
+  $: {
+    page = adapter.pages.find((_) => _.id === pageId);
+  }
+
 </script>
 
+{#if page}
 <div class="mt-4 mx-48">
   <div>
     <input
@@ -27,3 +33,4 @@
     />
   </div>
 </div>
+{/if}

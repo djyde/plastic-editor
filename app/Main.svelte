@@ -5,37 +5,59 @@
   import data from "./data";
   import { InMemoryAdapter } from "../editor/adapters/InMemory";
   import ExternalLink from "./blocks/ExternalLink.svelte";
-  import NotePage from "./NotePage.svelte";
-  import { onMount, setContext } from "svelte";
+  import NotePage from "./pages/NotePage.svelte";
+  import { onDestroy, onMount, setContext } from "svelte";
   import * as db from "./db";
   import adapter from "./adapter";
+  import PageSearchInput from "./components/PageSearchInput.svelte";
+  import router from './router'
+  import Welcome from "./pages/Welcome.svelte";
 
-  const rules = [
-    {
-      match: /\[([^\]]+)\]\(([^\)]+)\)/,
-      processor(matched, position) {
-        return {
-          type: "ExternalLink",
-          meta: {
-            component: ExternalLink,
-            props: {
-              title: matched[1],
-              url: matched[2],
-            },
-          },
-          position,
-          matched,
-        };
-      },
-    },
-  ] as Rule[];
+  let pageNow = {
+    component: Welcome,
+    props: {},
+  };
 
-  let pageId: string;
-
-  onMount(async () => {
-    await db.init();
-    pageId = adapter.pages[0].id;
+  onDestroy(() => {
+    router.destroy();
   });
+
+  function updateTitle() {
+    // document.title = `Plastic - ${DB.get().directory}`;
+  }
+
+  router.on("/", () => {
+    pageNow = {
+      component: Welcome,
+      props: {},
+    }
+    // if (DB.get()) {
+    //   updateTitle();
+    //   router.navigate("/daily");
+    // } else {
+    //   router.navigate("/openFile");
+    // }
+  });
+
+  router.on("/page/:id", ({ data }) => {
+    console.log('in page', data)
+    pageNow = {
+      component: NotePage,
+      props: {
+        pageId: data.id,
+      },
+    };
+  });
+
+  // router.on("/daily", () => {
+  //   updateTitle();
+  //   pageNow = {
+  //     component: DailyNotes,
+  //     props: {},
+  //   };
+  // });
+
+  router.navigate(router.getCurrentLocation().hashString);
 
   async function save() {
     await db.persist();
@@ -49,15 +71,9 @@
   <div class="flex-1 overflow-scroll">
     <nav class="p-4 flex justify-end">
       <div class="w-64">
-        <input
-          class="w-full outline-none bg-gray-100 p-2 px-4 rounded"
-          type="text"
-          placeholder="Search or create page"
-        />
+        <PageSearchInput />
       </div>
     </nav>
-    {#if pageId}
-      <NotePage {pageId} />
-    {/if}
+    <svelte:component this={pageNow.component} {...pageNow.props} />
   </div>
 </div>

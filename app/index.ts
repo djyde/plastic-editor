@@ -1,6 +1,6 @@
 
 import Main from './Main.svelte'
-
+import * as db from './db'
 
 // const editor = new Editor({
 //   target: document.querySelector("#app"),
@@ -11,6 +11,10 @@ import Main from './Main.svelte'
 //   },
 // });
 
-const editor = new Main({
-  target: document.querySelector("#app"),
-});
+;(async () => {
+  await db.init()
+  const editor = new Main({
+    target: document.querySelector("#app"),
+  });
+
+})()
