@@ -29,7 +29,7 @@
     "localforage": "^1.9.0",
     "lodash.groupby": "^4.6.0",
     "nanoid": "^3.1.20",
-    "navigo": "^8.9.1",
+    "svelte-spa-router": "^3.1.0",
     "textarea-caret": "^3.1.0"
   }
 }

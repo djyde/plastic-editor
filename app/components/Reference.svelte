@@ -3,7 +3,7 @@ import type { Block, ShallowBlock, Page } from "@plastic-editor/protocol/lib/pro
 import Editor from '../../editor/Editor.svelte'
 import adapter from "../adapter";
 import rules from "../rules";
-import RouteLink from "./RouteLink.svelte";
+  import * as router from 'svelte-spa-router'
 
   export let pageId
   export let blocks: Block[]
@@ -21,7 +21,7 @@ import RouteLink from "./RouteLink.svelte";
 <div class="my-2">
 
   <h1 class=" mb-2 text-blue-500">
-    <RouteLink to={`/page/${page.id}`}>{page.title}</RouteLink>
+    <a use:router.link href={`/page/${page.id}`}>{page.title}</a>
   </h1>
 
   {#each blocks as block}

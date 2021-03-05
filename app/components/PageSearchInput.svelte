@@ -1,8 +1,7 @@
 <script lang="ts">
   import adapter from "../adapter";
   import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
-  import router from "../router";
-
+  import * as router from 'svelte-spa-router'
   let results: Page[] = [];
 
   let keyword: string = "";
@@ -39,7 +38,7 @@
         on:click={(e) => {
           e.preventDefault();
           const page = adapter.writer.createNewPage(keyword)
-          router.navigate(`/page/${page.id}`);
+          router.push(`/page/${page.id}`);
         }}>Create {keyword}</a
       >
       {#each results as result (result.id)}
@@ -48,7 +47,7 @@
           class="w-full block hover:bg-gray-100 px-4 py-2 text-sm"
           on:click={(e) => {
             e.preventDefault();
-            router.navigate(`/page/${result.id}`);
+            router.push(`/page/${result.id}`);
           }}>{result.title}</a
         >
       {/each}

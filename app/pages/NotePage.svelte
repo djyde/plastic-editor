@@ -4,21 +4,24 @@
   import Editor from '../../editor/Editor.svelte'
   import rules from '../rules'
   import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
-import Reference from "../components/Reference.svelte";
+  import Reference from "../components/Reference.svelte";
+  import * as router from 'svelte-spa-router'
 
-  export let pageId = "";
+  export let params: {
+    pageId: string
+  };
 
   let references: {[key: string]: Block[]}
 
   let page: Page
 
   $: {
-    page = adapter.pages.find((_) => _.id === pageId);
+    page = adapter.pages.find((_) => _.id === params.pageId);
   }
 
   // find references
   $: {
-    references = adapter.reader.findPageReferenceBlocks(pageId)
+    references = adapter.reader.findPageReferenceBlocks(params.pageId)
   }
 
 </script>
@@ -36,7 +39,7 @@ import Reference from "../components/Reference.svelte";
   <div class="mt-12 -ml-3">
     <Editor
       adapter={adapter}
-      pageId={pageId}
+      pageId={params.pageId}
       rules={rules}
     />
   </div>

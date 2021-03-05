@@ -3,6 +3,7 @@
   export let title: string;
   import * as router from 'svelte-spa-router'
 
+
   const page = adapter.writer.touchPageByTitle(title)
 
   function onClick(e) {
@@ -12,10 +13,9 @@
 </script>
 
 <span
-  >[<a
-    href={`/page/${page.id}`}
+  ><a
     on:click|stopPropagation={onClick}
     class="text-blue-500"
-    >{page.title}</a
-  >]</span
+    href={`/page/${page.id}`}>#{page.title}</a
+  ></span
 >
