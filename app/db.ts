@@ -1,6 +1,7 @@
 import lf from 'localforage'
 import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
 import adapter from './adapter'
+import dayjs from 'dayjs'
 
 const db = lf.createInstance({
   name: 'plastic'
@@ -15,11 +16,19 @@ export async function getNote() {
   return await db.getItem('note') as Note
 }
 
+export function touchTodayDailyNote() {
+  const today = dayjs().format("MMMM, DD, YYYY");
+  return adapter.writer.touchPageByTitle(today, {
+    type: 'daily'
+  })
+}
+
 export async function init() {
+  touchTodayDailyNote();
+
   const note = await getNote()
 
   if (!note) {
-    adapter.writer.createNewPage('Welcome')
   } else {
     adapter.pages = note.pages
     adapter.blocks = note.blocks

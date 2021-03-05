@@ -66,13 +66,14 @@ export class InMemoryAdapter implements Adapter {
       };
     },
 
-    createNewPage: (title: string) => {
+    createNewPage: (title: string, meta?) => {
       const id = nanoid(8);
       const page = {
         id,
         title,
+        ...meta,
         children: [this.writer.createNewBlock(id).shallow],
-      };
+      } as Page;
       this.pages.push(page);
       return page;
     },
@@ -95,10 +96,10 @@ export class InMemoryAdapter implements Adapter {
       this.blocks[blockId].references = pageIds
     },
 
-    touchPageByTitle: (title: string) => {
+    touchPageByTitle: (title: string, meta?) => {
       const existed = this.pages.find(_ => _.title === title );
       if (!existed) {
-        return this.writer.createNewPage(title);
+        return this.writer.createNewPage(title, meta);
       } else {
         return existed;
       }

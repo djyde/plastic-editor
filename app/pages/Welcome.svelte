@@ -1,3 +1,10 @@
+<script lang="ts">
+  import * as db from '../db'
+import NotePage from './NotePage.svelte'
+
+  const today = db.touchTodayDailyNote()
+</script>
+
 <div>
-  welcome page
+  <NotePage params={{ pageId: today.id }} />
 </div>
