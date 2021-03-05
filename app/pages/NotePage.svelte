@@ -3,14 +3,22 @@
   import adapter from "../adapter";
   import Editor from '../../editor/Editor.svelte'
   import rules from '../rules'
-  import type { Page } from "@plastic-editor/protocol/lib/protocol";
+  import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
+import Reference from "../components/Reference.svelte";
 
   export let pageId = "";
+
+  let references: {[key: string]: Block[]}
 
   let page: Page
 
   $: {
     page = adapter.pages.find((_) => _.id === pageId);
+  }
+
+  // find references
+  $: {
+    references = adapter.reader.findPageReferenceBlocks(pageId)
   }
 
 </script>
@@ -31,6 +39,18 @@
       pageId={pageId}
       rules={rules}
     />
+  </div>
+
+  <div class="mt-12">
+    <h1 class="font-medium text-gray-300">References</h1>
+
+    <div class="">
+      {#if references}
+        {#each Object.entries(references) as [pageId, blocks]}
+          <Reference pageId={pageId} blocks={blocks} />
+        {/each}
+      {/if}
+    </div>
   </div>
 </div>
 {/if}

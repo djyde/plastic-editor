@@ -326,7 +326,7 @@
     />
     <div class="flex-1 max-w-full">
       {#each block.children as child, index (child.id)}
-        <svelte:self block={child} path={path.concat(index)} />
+        <svelte:self editable={editable} block={child} path={path.concat(index)} />
       {/each}
     </div>
   </div>

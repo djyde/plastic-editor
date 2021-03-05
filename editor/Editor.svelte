@@ -1,27 +1,30 @@
 <script lang="ts">
-  import './style.css'
-  import Block from './Block.svelte'
-  import { setContext } from 'svelte'
-  import { writable } from 'svelte/store'
-  import { PageEngine } from '@plastic-editor/protocol'
-  import type { Page } from '@plastic-editor/protocol/lib/protocol'
-  import type { Adapter } from './adapters';
-import type { Rule } from './parser';
+  import "./style.css";
+  import Block from "./Block.svelte";
+  import { setContext } from "svelte";
+  import { writable } from "svelte/store";
+  import { PageEngine } from "@plastic-editor/protocol";
+  import type { Page } from "@plastic-editor/protocol/lib/protocol";
+  import type { Adapter } from "./adapters";
+  import type { Rule } from "./parser";
 
-  export let adapter: Adapter
-  export let pageId: string
-  export let rules: Rule[] = []
+  export let adapter: Adapter;
+  export let pageId: string;
+  export let rules: Rule[] = [];
 
-  function createPageStore(){
-    let { subscribe, set } = writable<null | Page>(null)
+  export let initialBlockId: string;
+  export let editable = true
 
-    let pageEngine: PageEngine = null
+  function createPageStore() {
+    let { subscribe, set } = writable<null | Page>(null);
+
+    let pageEngine: PageEngine = null;
 
     async function updatePageId(pageId: string) {
-      set(null)
-      const page = await adapter.reader.getPageById(pageId)
-      set(page)
-      pageEngine = new PageEngine(page)
+      set(null);
+      const page = await adapter.reader.getPageById(pageId);
+      set(page);
+      pageEngine = new PageEngine(page);
     }
 
     return {
@@ -29,37 +32,44 @@ import type { Rule } from './parser';
       updatePageId,
       updatePage() {
         // TODO: update to db
-        set(pageEngine.page)
-        adapter.writer.updatePage(pageEngine.page.id, pageEngine.page)
-        pageEngine = pageEngine.renew()
+        set(pageEngine.page);
+        adapter.writer.updatePage(pageEngine.page.id, pageEngine.page);
+        pageEngine = pageEngine.renew();
       },
       getPageEngine() {
-        return pageEngine
-      }
-    }
+        return pageEngine;
+      },
+    };
   }
 
-  const pageStore = createPageStore()
+  const pageStore = createPageStore();
 
-  setContext('plastic', {
+  setContext("plastic", {
     adapter,
     pageStore,
-    rules
-  })
+    rules,
+  });
 
-  $: adapter.reader.getPageById(pageId).then(p => {
-    pageStore.updatePageId(pageId)
-  }).catch(e => {
-    console.log(e)
-  })
-
+  $: adapter.reader
+    .getPageById(pageId)
+    .then((p) => {
+      pageStore.updatePageId(pageId);
+    })
+    .catch((e) => {
+      console.log(e);
+    });
 </script>
 
 <div>
   {#if $pageStore}
-
-    {#each $pageStore.children  as block, index (block.id)}
-      <Block block={block} path={[index]} />
+    {#each $pageStore.children as block, index (block.id)}
+      {#if initialBlockId}
+        {#if initialBlockId === block.id}
+          <Block editable={editable} {block} path={[index]} />
+        {/if}
+      {:else}
+        <Block editable={editable} {block} path={[index]} />
+      {/if}
     {/each}
   {/if}
 </div>

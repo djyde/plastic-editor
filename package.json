@@ -27,6 +27,7 @@
   "dependencies": {
     "@plastic-editor/protocol": "^0.0.6",
     "localforage": "^1.9.0",
+    "lodash.groupby": "^4.6.0",
     "nanoid": "^3.1.20",
     "navigo": "^8.9.1",
     "textarea-caret": "^3.1.0"

@@ -1,6 +1,7 @@
 import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
 import type { Adapter } from ".";
 import { nanoid } from 'nanoid'
+import groupBy from 'lodash.groupby'
 
 type Note = {
   pages: Page[];
@@ -18,6 +19,14 @@ export class InMemoryAdapter implements Adapter {
       return this.pages.filter((_) =>
         _.title.match(new RegExp(`${keyword}`, "i"))
       );
+    },
+    findPageReferenceBlocks: (pageId: string) => {
+      const blocks = Object.keys(this.blocks).map(blockId => {
+        if (this.blocks[blockId].references.indexOf(pageId) !== -1) {
+          return this.blocks[blockId]
+        }
+      }).filter(Boolean)
+      return groupBy(blocks, _ => _.pageId) as {[key: string]: Block[]}
     },
     getBlockById: async (blockId: string) => {
       return this.blocks[blockId];
@@ -88,7 +97,6 @@ export class InMemoryAdapter implements Adapter {
 
     touchPageByTitle: (title: string) => {
       const existed = this.pages.find(_ => _.title === title );
-      console.log(existed)
       if (!existed) {
         return this.writer.createNewPage(title);
       } else {

@@ -1,17 +1,20 @@
 import type { Rule } from '../editor/parser'
 import ExternalLink  from './blocks/ExternalLink.svelte'
 import Link from "./blocks/Link.svelte";
+import adapter from './adapter'
 
 export default [
   {
     match: /\[\[([^\]]+)\]\]/,
     processor(matched, position) {
+      const page = adapter.writer.touchPageByTitle(matched[1]);
       return {
         type: "LINK",
         meta: {
           component: Link,
+          pageId: page.id,
           props: {
-            title: matched[1]
+            title: matched[1],
           },
         },
         value: matched[1],
