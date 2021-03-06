@@ -4,11 +4,11 @@ import { isStale } from "./store";
 import dayjs from "dayjs";
 import { Note } from "../editor/adapters";
 import * as router from "svelte-spa-router";
-import Main from "./Main.svelte";
+import Entry from "./Entry.svelte";
 
-function remountApp() {
+export function remountApp() {
   document.querySelector("#app").innerHTML = "";
-  new Main({
+  new Entry({
     target: document.querySelector("#app"),
   });
 }
@@ -21,45 +21,6 @@ export async function getNote() {
   return (await db.getItem("note")) as Note;
 }
 
-export function touchTodayDailyNote() {
-  const today = dayjs().format("MMMM, DD, YYYY");
-  return adapter.writer.touchPageByTitle(today, {
-    type: "daily",
-  });
-}
-
-export async function init() {
-  touchTodayDailyNote();
-
-  const note = await getNote();
-
-  if (!note) {
-  } else {
-    adapter.note = {
-      pages: note.pages,
-      blocks: note.blocks,
-      stars: note.stars || [],
-    };
-  }
-}
-
-export async function reinit(jsonString: string) {
-  try {
-    const note = JSON.parse(jsonString) as Note;
-    adapter.note = note;
-    await persist();
-    remountApp()
-  } catch (e) {
-    throw new Error("Not valid json file");
-  }
-}
-
-export async function persist() {
-  const note = adapter.reader.output();
-  await save(note);
-  isStale.set(false);
-}
-
-export async function save(note: Note) {
+export async function saveNote(note: Note) {
   await db.setItem("note", note);
 }

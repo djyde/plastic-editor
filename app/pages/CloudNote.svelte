@@ -6,6 +6,7 @@ import qs from 'qs'
 import InMemoryAdapter, { initialNote } from "../adapter";
 import Main from '../Main.svelte'
 import type { Note } from "../../editor/adapters";
+import { encrypt } from "../utils";
 
   export let params: {
     noteId: string
@@ -24,6 +25,8 @@ import type { Note } from "../../editor/adapters";
   let adapter: InMemoryAdapter
 
   async function persist() {
+      // const encrypted = await encrypt.encrypt(adapter.stringify())
+
     const { data, error }  = await client.from('notes').update({
       content: adapter.stringify()
     }).eq('id', params.noteId)

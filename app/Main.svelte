@@ -19,6 +19,9 @@
   import type { InMemoryAdapter } from "./adapter";
 import DailyNotes from "./pages/DailyNotes.svelte";
 import SinglePage from "./pages/SinglePage.svelte";
+import { encrypt } from "./utils";
+import { remountApp } from "./db";
+import type { Note } from "../editor/adapters";
 
   export let adapter: InMemoryAdapter;
   export let prefix: string;
@@ -45,7 +48,6 @@ import SinglePage from "./pages/SinglePage.svelte";
   };
 
   const debouncedPersist = debounce(async () => {
-    console.log('begin persist')
     await persist()
     $isStale = false
   }, 2500)
@@ -74,7 +76,18 @@ import SinglePage from "./pages/SinglePage.svelte";
   async function onUploadFile(e) {
     const file = this.files[0] as File;
     const text = await file.text();
-    db.reinit(text);
+
+    // retinit
+    try {
+      const note = JSON.parse(text) as Note;
+      adapter.note = note;
+      await persist();
+      remountApp();
+    } catch (e) {
+      console.log(e)
+      throw new Error("Not valid json file");
+    }
+
   }
 
   async function exportAsJson() {
@@ -85,13 +98,18 @@ import SinglePage from "./pages/SinglePage.svelte";
   }
 
   async function createCloudNote() {
-    const { data, error } = await client.from("notes").insert({ content: "" });
-    console.log(data, error);
+    const { data, error } = await client.from<{
+      id: string,
+      content: string
+    }>("notes").insert({ content: "" });
+
+    if (!error) {
+      const id = data![0].id
+      const url = `/#/note/${id}/`
+      window.open(url)
+    }
   }
 
-  async function sync() {
-    persist();
-  }
 </script>
 
 <div class="flex h-screen">
