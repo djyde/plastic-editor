@@ -30,6 +30,7 @@
     "dayjs": "^1.10.4",
     "file-saver": "^2.0.5",
     "localforage": "^1.9.0",
+    "lodash.debounce": "^4.0.8",
     "lodash.groupby": "^4.6.0",
     "nanoid": "^3.1.20",
     "qs": "^6.9.6",

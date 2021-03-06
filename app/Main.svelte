@@ -12,6 +12,7 @@
   import saveIcon from "./assets/save.svg";
   import downloadIcon from "./assets/download.svg";
   import folderOpenIcon from "./assets/folderOpen.svg";
+  import debounce from 'lodash.debounce'
 
   import FileSaver from "file-saver";
   import type { InMemoryAdapter } from "./adapter";
@@ -42,16 +43,23 @@ import SinglePage from "./pages/SinglePage.svelte";
     }),
   };
 
-  const autoPersist = setInterval(() => {
-    // db.persist();
-  }, 2000);
+  const debouncedPersist = debounce(async () => {
+    console.log('begin persist')
+    await persist()
+    $isStale = false
+  }, 2500)
+  
+  $: {
+    if ($isStale) {
+      debouncedPersist()
+    }
+  }
 
   onMount(async () => {
     // console.log(router.)
   });
 
   onDestroy(() => {
-    clearInterval(autoPersist);
   });
 
   let staredPages = adapter.reader.getStaredPages();
