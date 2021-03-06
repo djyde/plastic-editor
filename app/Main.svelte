@@ -9,8 +9,9 @@
   import { location } from 'svelte-spa-router'
   import { wrap } from "svelte-spa-router/wrap";
   import { client } from "./cloud";
-  import saveIcon from "./assets/save.svg";
-  import downloadIcon from "./assets/download.svg";
+  import saveIcon from "./assets/download-2-line.svg";
+  import fileCloud from "./assets/file-cloud-line.svg";
+
   import folderOpenIcon from "./assets/folderOpen.svg";
   import debounce from 'lodash.debounce'
 
@@ -100,11 +101,7 @@ import SinglePage from "./pages/SinglePage.svelte";
         <img class="max-w-full block" src={saveIcon} alt="save button" />
       </button>
 
-      <button class="bg-white shadow rounded p-1" on:click={createCloudNote}>
-        <img class="max-w-full block" src={saveIcon} alt="save button" />
-      </button>
-
-      <button on:click={sync}> Sync </button>
+      <!-- <button on:click={sync}> Sync </button> -->
 
       <input on:change={onUploadFile} type="file" class="hidden" id="import" />
       <label for="import" class="cursor-pointer	">
@@ -114,6 +111,12 @@ import SinglePage from "./pages/SinglePage.svelte";
           alt="open file"
         />
       </label>
+
+
+      <button class="bg-white shadow rounded p-1" on:click={createCloudNote}>
+        <img class="max-w-full block" src={fileCloud} alt="create new cloud note" />
+      </button>
+
     </div>
 
     <div class="font-medium mt-4">
