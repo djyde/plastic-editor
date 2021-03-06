@@ -2,9 +2,9 @@
   import { anchorOffset } from './store'
   import { tokenizer } from "./parser";
   import type { Rule, Token } from './parser'
-import { getContext } from 'svelte';
-import adapter from '../app/adapter';
-import type { ShallowBlock } from '@plastic-editor/protocol/lib/protocol';
+  import { getContext } from 'svelte';
+  import type { ShallowBlock } from '@plastic-editor/protocol/lib/protocol';
+import type InMemoryAdapter from '../app/adapter';
 
   export let updateContent
   export let content = ""
@@ -12,7 +12,8 @@ import type { ShallowBlock } from '@plastic-editor/protocol/lib/protocol';
 
   let toMatch = `${content}`;
 
-  const { rules } = getContext('plastic') as {
+  const { rules, adapter } = getContext('plastic') as {
+    adapter: InMemoryAdapter,
     rules: Rule[]
   }
 
@@ -42,7 +43,7 @@ import type { ShallowBlock } from '@plastic-editor/protocol/lib/protocol';
     {#if item.type === 'TEXT'}
       <span on:click|capture={focusTextHelper(item)()}>{item.value}</span>
     {:else}
-      <svelte:component focusTextHelper={focusTextHelper(item)} this={item.meta?.component} {...item.meta?.props} replace={replace(item)} item={item} />
+      <svelte:component adapter={adapter} focusTextHelper={focusTextHelper(item)} this={item.meta?.component} {...item.meta?.props} replace={replace(item)} item={item} />
     {/if}
   {/each}
   <!-- <span>block</span> {content} -->

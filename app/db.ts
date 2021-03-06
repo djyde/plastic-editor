@@ -1,6 +1,5 @@
 import lf from "localforage";
 import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
-import adapter from "./adapter";
 import { isStale } from "./store";
 import dayjs from "dayjs";
 import { Note } from "../editor/adapters";

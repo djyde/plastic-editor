@@ -1,10 +1,13 @@
 <script lang="ts">
-  import adapter from "../adapter";
   import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
   import * as router from 'svelte-spa-router'
+import type InMemoryAdapter from "../adapter";
   let results: Page[] = [];
 
   let keyword: string = "";
+
+  export let prefix: string
+  export let adapter: InMemoryAdapter
 
   let showResult = true;
 
@@ -38,7 +41,7 @@
         on:click={(e) => {
           e.preventDefault();
           const page = adapter.writer.createNewPage(keyword)
-          router.push(`/page/${page.id}`);
+          router.push(`${prefix}/page/${page.id}`);
         }}>Create {keyword}</a
       >
       {#each results as result (result.id)}
@@ -47,7 +50,7 @@
           class="w-full block hover:bg-gray-100 px-4 py-2 text-sm"
           on:click={(e) => {
             e.preventDefault();
-            router.push(`/page/${result.id}`);
+            router.push(`${prefix}/page/${result.id}`);
           }}>{result.title}</a
         >
       {/each}

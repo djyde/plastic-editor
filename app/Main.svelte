@@ -1,52 +1,90 @@
 <script lang="ts">
-  import NotePage from "./pages/NotePage.svelte";
-  import { onDestroy } from "svelte";
+  import NotePage from "./components/Note.svelte";
+  import { onDestroy, onMount, setContext } from "svelte";
   import * as db from "./db";
-  import { isStale } from './store'
+  import { isStale } from "./store";
   import PageSearchInput from "./components/PageSearchInput.svelte";
   import Router from "svelte-spa-router";
-  import * as router from 'svelte-spa-router'
-  import routes from "./routes";
-
+  import * as router from "svelte-spa-router";
+  import { location } from 'svelte-spa-router'
+  import { wrap } from "svelte-spa-router/wrap";
+  import { client } from "./cloud";
   import saveIcon from "./assets/save.svg";
   import downloadIcon from "./assets/download.svg";
   import folderOpenIcon from "./assets/folderOpen.svg";
 
+  import FileSaver from "file-saver";
+  import type { InMemoryAdapter } from "./adapter";
+import DailyNotes from "./pages/DailyNotes.svelte";
+import SinglePage from "./pages/SinglePage.svelte";
 
-  import FileSaver from 'file-saver'
-  import adapter from "./adapter";
+  export let adapter: InMemoryAdapter;
+  export let prefix: string;
+  export let persist;
 
-  const autoPersist = setInterval(()=> {
-    db.persist()
-  }, 2000)
+  setContext("route", {
+    adapter,
+  });
+
+  const routes = {
+    "/": wrap({
+      component: DailyNotes,
+      props: {
+        adapter,
+      },
+    }),
+    "/page/:pageId": wrap({
+      component: SinglePage,
+      props: {
+        adapter,
+      },
+    }),
+  };
+
+  const autoPersist = setInterval(() => {
+    // db.persist();
+  }, 2000);
+
+  onMount(async () => {
+    // console.log(router.)
+  });
 
   onDestroy(() => {
-    clearInterval(autoPersist)
+    clearInterval(autoPersist);
   });
 
   async function save() {
     await db.persist();
   }
 
-  let staredPages = adapter.reader.getStaredPages()
+  let staredPages = adapter.reader.getStaredPages();
 
   $: {
     if ($isStale) {
-      staredPages = adapter.reader.getStaredPages()
+      staredPages = adapter.reader.getStaredPages();
     }
   }
 
   async function onUploadFile(e) {
-    const file = this.files[0] as File
-    const text = await file.text()
-    db.reinit(text)
+    const file = this.files[0] as File;
+    const text = await file.text();
+    db.reinit(text);
   }
 
-  async function exportAsJson () {
-    const notes = await db.getNote()
-    const jsonString = JSON.stringify(notes)
-    const blob = new Blob([jsonString], {type: "text/plain;charset=utf-8"})
-    FileSaver.saveAs(blob, 'note.json')
+  async function exportAsJson() {
+    const notes = adapter.note;
+    const jsonString = JSON.stringify(notes);
+    const blob = new Blob([jsonString], { type: "text/plain;charset=utf-8" });
+    FileSaver.saveAs(blob, "note.json");
+  }
+
+  async function createCloudNote() {
+    const { data, error } = await client.from("notes").insert({ content: "" });
+    console.log(data, error);
+  }
+
+  async function sync() {
+    persist();
   }
 </script>
 
@@ -57,14 +95,24 @@
         <img class="max-w-full block" src={saveIcon} alt="save button" />
       </button>
 
+      <button class="bg-white shadow rounded p-1" on:click={createCloudNote}>
+        <img class="max-w-full block" src={saveIcon} alt="save button" />
+      </button>
+
+      <button on:click={sync}> Sync </button>
+
       <input on:change={onUploadFile} type="file" class="hidden" id="import" />
       <label for="import" class="cursor-pointer	">
-        <img class="bg-white shadow rounded p-1 max-w-full block" src={folderOpenIcon} alt="open file" />
+        <img
+          class="bg-white shadow rounded p-1 max-w-full block"
+          src={folderOpenIcon}
+          alt="open file"
+        />
       </label>
     </div>
 
     <div class="font-medium mt-4">
-      <a class="block px-4 py-1 hover:bg-gray-200" use:router.link href="/">
+      <a class="block px-4 py-1 hover:bg-gray-200" use:router.link href={`${prefix}/`}>
         Daily Notes
       </a>
     </div>
@@ -74,7 +122,11 @@
 
       <div>
         {#each staredPages as page}
-          <a class="block hover:bg-gray-200 px-4 py-1" use:router.link href={`/page/${page.id}`}>{page.title}</a>
+          <a
+            class="block hover:bg-gray-200 px-4 py-1"
+            use:router.link
+            href={`/page/${page.id}`}>{page.title}</a
+          >
         {/each}
       </div>
     </div>
@@ -83,15 +135,15 @@
     <nav class="p-4 flex justify-end">
       <div class="flex-1">
         {#if $isStale}
-        <span class="bg-yellow-500 w-2 h-2 block rounded-full"></span>
+          <span class="bg-yellow-500 w-2 h-2 block rounded-full" />
         {:else}
-        <span class="bg-green-500 w-2 h-2 block rounded-full"></span>
+          <span class="bg-green-500 w-2 h-2 block rounded-full" />
         {/if}
       </div>
       <div class="w-64">
-        <PageSearchInput />
+        <PageSearchInput {adapter} {prefix} />
       </div>
     </nav>
-    <Router {routes} />
+    <Router {routes} {prefix} />
   </div>
 </div>

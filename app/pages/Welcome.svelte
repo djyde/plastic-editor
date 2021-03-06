@@ -1,10 +1,9 @@
 <script lang="ts">
-  import * as db from '../db'
-import NotePage from './NotePage.svelte'
-
-  const today = db.touchTodayDailyNote()
+  import * as router from 'svelte-spa-router'
 </script>
 
 <div>
-  <NotePage params={{ pageId: today.id }} />
+  welcome
+
+  <a href="/note/0920715a-fa05-4fe5-8d0f-ae72550e598d" use:router.link>Cloud note</a>
 </div>

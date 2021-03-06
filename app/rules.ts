@@ -1,11 +1,10 @@
 import type { Rule } from '../editor/parser'
+import InMemoryAdapter from './adapter';
 import ExternalLink  from './blocks/ExternalLink.svelte'
 import Link from "./blocks/Link.svelte";
 import Tag from "./blocks/Tag.svelte";
 
-import adapter from './adapter'
-
-export default [
+export default (adapter: InMemoryAdapter) => [
   {
     match: /#\[\[([^\]]+)\]\]/,
     processor(matched, position) {

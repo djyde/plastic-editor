@@ -1,25 +1,24 @@
 <script lang="ts">
   import { getContext } from "svelte";
-  import adapter from "../adapter";
   import Editor from "../../editor/Editor.svelte";
-  import rules from "../rules";
+  import makeRules from "../rules";
   import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
-  import Reference from "../components/Reference.svelte";
-  import * as router from "svelte-spa-router";
-  import type { Adapter } from "../../editor/adapters";
+  import Reference from "./Reference.svelte";
+  import type InMemoryAdapter from "../adapter";
 
-  export let params: {
-    pageId: string;
-  };
+  export let pageId: string
+  export let adapter: InMemoryAdapter
 
   let references: { [key: string]: Block[] };
 
+  const rules = makeRules(adapter)
+
   let page: Page;
 
-  let isStared = adapter.reader.isStared(params.pageId);
+  let isStared = adapter.reader.isStared(pageId);
 
   $: {
-    const p = adapter.reader.getPageById(params.pageId);
+    const p = adapter.reader.getPageById(pageId);
     if (!p) {
       // TODO: not found
     } else {
@@ -29,7 +28,7 @@
 
   // find references
   $: {
-    references = adapter.reader.findPageReferenceBlocks(params.pageId);
+    references = adapter.reader.findPageReferenceBlocks(pageId);
   }
 </script>
 
@@ -48,7 +47,7 @@
         <button
           on:click={(_) => {
             adapter.writer.unstarPage(page.id);
-            isStared = false
+            isStared = false;
           }}
           class="underline text-sm">Unstar</button
         >
@@ -56,7 +55,7 @@
         <button
           on:click={(_) => {
             adapter.writer.starPage(page.id);
-            isStared = true
+            isStared = true;
           }}
           class="underline text-sm">Star</button
         >
@@ -64,7 +63,7 @@
     </div>
 
     <div class="mt-12 -ml-3">
-      <Editor {adapter} pageId={params.pageId} {rules} />
+      <Editor {adapter} pageId={pageId} {rules} />
     </div>
 
     <div class="mt-12">
@@ -73,7 +72,7 @@
       <div class="">
         {#if references}
           {#each Object.entries(references) as [pageId, blocks]}
-            <Reference {pageId} {blocks} />
+            <Reference adapter={adapter} {pageId} {blocks} />
           {/each}
         {/if}
       </div>

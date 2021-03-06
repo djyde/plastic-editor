@@ -1,5 +1,5 @@
 
-import Main from './Main.svelte'
+import Entry from './Entry.svelte'
 import * as db from './db'
 
 // const editor = new Editor({
@@ -12,9 +12,8 @@ import * as db from './db'
 // });
 
 ;(async () => {
-  await db.init()
-  const editor = new Main({
+  // await db.init()
+  const editor = new Entry({
     target: document.querySelector("#app"),
   });
-
 })()

@@ -2,20 +2,28 @@ import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
 import type { Adapter, Note } from "../editor/adapters";
 import { nanoid } from "nanoid";
 import groupBy from "lodash.groupby";
-import { isStale } from './store'
+import { isStale } from "./store";
+import dayjs from "dayjs";
 
-const initialNote = {
+export const initialNote = {
   pages: [],
   blocks: {},
   stars: [],
 } as Note;
 
 function makeSteal() {
-  isStale.set(true)
+  isStale.set(true);
 }
 
 export class InMemoryAdapter implements Adapter {
   constructor(public note: Note = initialNote) {}
+
+  touchTodayDailyNote = () => {
+    const today = dayjs().format("MMMM, DD, YYYY");
+    return this.writer.touchPageByTitle(today, {
+      type: "daily",
+    });
+  };
 
   reader = {
     searchPageByKeyword: (keyword: string) => {
@@ -90,7 +98,6 @@ export class InMemoryAdapter implements Adapter {
       } as Page;
       this.note.pages.push(page);
 
-
       makeSteal();
       return page;
     },
@@ -121,7 +128,7 @@ export class InMemoryAdapter implements Adapter {
       if (!existed) {
         const created = this.writer.createNewPage(title, meta);
         makeSteal();
-        return created
+        return created;
       } else {
         return existed;
       }
@@ -145,13 +152,9 @@ export class InMemoryAdapter implements Adapter {
       {
         pages: this.note.pages,
         blocks: this.note.blocks,
-      },
-      null,
-      2
+      }
     );
   }
 }
 
-
-export default new InMemoryAdapter()
-
+export default InMemoryAdapter;
