@@ -131,9 +131,11 @@ import type { Note } from "../editor/adapters";
       </label>
 
 
-      <button class="bg-white shadow rounded p-1" on:click={createCloudNote}>
-        <img class="max-w-full block" src={fileCloud} alt="create new cloud note" />
-      </button>
+      {#if localStorage.getItem('beta') === 'true'}
+        <button class="bg-white shadow rounded p-1" on:click={createCloudNote}>
+          <img class="max-w-full block" src={fileCloud} alt="create new cloud note" />
+        </button>
+      {/if}
 
     </div>
 
