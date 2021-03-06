@@ -1,12 +1,14 @@
 <script lang="ts">
   import type { Block, Page } from "@plastic-editor/protocol/lib/protocol";
+import { getContext } from "svelte";
   import * as router from 'svelte-spa-router'
 import type InMemoryAdapter from "../adapter";
   let results: Page[] = [];
 
   let keyword: string = "";
 
-  export let prefix: string
+  const { prefix } = getContext('route')
+
   export let adapter: InMemoryAdapter
 
   let showResult = true;
@@ -14,8 +16,6 @@ import type InMemoryAdapter from "../adapter";
   function searchPage(e) {
     results = adapter.reader.searchPageByKeyword(e.target.value);
   }
-
-  // searchPage({ target: { value: "o" } });
 </script>
 
 <div class="relative">

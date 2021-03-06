@@ -54,7 +54,10 @@ export class InMemoryAdapter implements Adapter {
     },
 
     isStared: (pageId: string) => {
-      return this.note.stars?.indexOf(pageId) !== -1;
+      if (!this.note.stars) {
+        return false
+      }
+      return this.note.stars.indexOf(pageId) !== -1;
     },
 
     output: () => {
@@ -135,25 +138,27 @@ export class InMemoryAdapter implements Adapter {
     },
 
     starPage: (pageId: string) => {
-      if (this.note.stars?.findIndex((_) => _ === pageId) === -1) {
+      if (!this.note.stars) {
+        this.note.stars = [];
+      }
+
+      if (this.note.stars.findIndex((_) => _ === pageId) === -1) {
         this.note.stars.push(pageId);
       }
       makeSteal();
     },
 
     unstarPage: (pageId: string) => {
-      this.note.stars = this.note.stars?.filter((_) => _ !== pageId) || [];
+      if (!this.note.stars) {
+        this.note.stars = [];
+      }
+      this.note.stars = this.note.stars.filter((_) => _ !== pageId) || [];
       makeSteal();
     },
   };
 
   stringify() {
-    return JSON.stringify(
-      {
-        pages: this.note.pages,
-        blocks: this.note.blocks,
-      }
-    );
+    return JSON.stringify(this.note);
   }
 }
 

@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getContext } from 'svelte';
+
   export let title: string;
   import * as router from 'svelte-spa-router'
 import type InMemoryAdapter from '../adapter';
@@ -6,16 +8,15 @@ import type InMemoryAdapter from '../adapter';
   export let adapter: InMemoryAdapter
   const page = adapter.writer.touchPageByTitle(title)
 
-  function onClick(e) {
-    e.preventDefault();
-    router.push(`/page/${page.id}`);
-  }
+  const { prefix } = getContext('route')
+
 </script>
 
 <span
   ><a
-    on:click|stopPropagation={onClick}
+    on:click|stopPropagation
+    use:router.link
     class="text-blue-500"
-    href={`/page/${page.id}`}>#{page.title}</a
+    href={`${prefix}/page/${page.id}`}>#{page.title}</a
   ></span
 >

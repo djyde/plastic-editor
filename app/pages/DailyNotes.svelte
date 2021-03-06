@@ -4,6 +4,8 @@ import NotePage from '../components/Note.svelte'
   export let adapter: InMemoryAdapter;
 
   const pageId = adapter.touchTodayDailyNote().id
+
+  console.log('mount')
 </script>
 
 <div>

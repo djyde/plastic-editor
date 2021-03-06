@@ -5,6 +5,6 @@ import CloudNote from "./pages/CloudNote.svelte";
 
 export default {
   '/': Welcome,
-  '/note/:noteId': CloudNote,
+  // '/note/:noteId/': CloudNote,
   '/note/:noteId/*': CloudNote,
 };

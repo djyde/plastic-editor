@@ -23,6 +23,7 @@ import SinglePage from "./pages/SinglePage.svelte";
   export let persist;
 
   setContext("route", {
+    prefix,
     adapter,
   });
 
@@ -52,10 +53,6 @@ import SinglePage from "./pages/SinglePage.svelte";
   onDestroy(() => {
     clearInterval(autoPersist);
   });
-
-  async function save() {
-    await db.persist();
-  }
 
   let staredPages = adapter.reader.getStaredPages();
 
@@ -125,7 +122,7 @@ import SinglePage from "./pages/SinglePage.svelte";
           <a
             class="block hover:bg-gray-200 px-4 py-1"
             use:router.link
-            href={`/page/${page.id}`}>{page.title}</a
+            href={`${prefix}/page/${page.id}`}>{page.title}</a
           >
         {/each}
       </div>
@@ -141,7 +138,7 @@ import SinglePage from "./pages/SinglePage.svelte";
         {/if}
       </div>
       <div class="w-64">
-        <PageSearchInput {adapter} {prefix} />
+        <PageSearchInput {adapter} />
       </div>
     </nav>
     <Router {routes} {prefix} />

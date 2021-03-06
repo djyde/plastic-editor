@@ -31,7 +31,7 @@ import type { Note } from "../../editor/adapters";
     if (error) {
       console.log('persist error', error)
     } else {
-      console.log('sync!')
+      console.log('sync!', JSON.stringify(adapter.note, null, 2))
     }
   }
 
