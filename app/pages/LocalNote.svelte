@@ -18,7 +18,7 @@ import { getNote, saveNote } from "../db";
   }
 
   onMount(async () => {
-    const note = await getNote()
+    const note = await getNote() || initialNote
     adapter = new InMemoryAdapter(note);
     adapter.touchTodayDailyNote()
     hasInitialized = true;
